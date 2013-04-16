@@ -1,0 +1,176 @@
+#textcards_cat_list{
+	float: left;
+	width: 100%;
+	list-style: none;
+}
+
+#textcards_cat_list li{
+	float: left;
+	margin: 0 20px 0 0px;
+}
+
+#the_image{
+	float: left;
+	width: 600px;
+	height: 600px;
+	position: relative;
+	overflow: hidden;
+}
+
+#preview_image{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+}
+
+#image_wrapper{
+	float: left;
+	width: 600px;
+}
+
+#card_meta{
+	float: left;
+	width: 375px;
+/* 	border-bottom: 1px solid #ddd; */
+	padding: 10px;
+	margin-bottom: 20px;
+}
+
+#card_meta h1{
+	margin: 0!important;
+}
+
+p.info{
+	margin: 0!important;
+	font-size: 12px;
+	font-style: italic;
+	float: left;
+	clear: left;
+}
+
+p.price{
+	font-size: 29px;
+	float: left;
+	margin: 13px 0px 0px 0px!important;
+	clear: left;
+	width: 100%;
+}
+.button{
+	float: left;
+	background: #ddd;
+	color: #666;
+	text-decoration: none;
+	padding: 7px 20px;
+	border-radius: 9px;
+	margin: 20px 0px 0px 0px;
+/* 	clear: left; */
+	border: 1px solid #ccc;
+}
+
+a.button.edit_button{
+	background: #edb151;
+	color: #fff;
+	border-radius: 9px;
+}
+
+a.button.buy_now{
+	margin-left: 20px;
+	background: #87b3ec;
+	color: #fff;
+	font-size: 16px;
+	display: none;
+}
+
+a.button.confirm{
+	background: #87b3ec;
+	color: #fff;
+	font-size: 16px;
+}
+
+#the_text{
+	position: absolute;
+	cursor: move;
+	white-space: pre;
+}
+
+#customisation_options{
+	display: none;
+	float: left;
+	clear: left;
+	border: 1px solid #edb151;
+	width: 100%;
+	padding: 16px;
+	margin-top: 10px;
+}
+
+#preview_rendered_image {
+	float: left;
+	clear: left;
+}
+
+#preview_rendered_image img{
+	border: 1px solid #ddd;
+	margin: 20px 0px 0px 0px;
+}
+
+#loading_preview{
+	display: none;
+	float: left;
+	margin-top: 21px;
+	margin-left: 20px;
+	clear: left;
+}
+
+#confirmation{
+	display: none;
+	float: left;
+	clear: left;
+	border: 1px solid #edb151;
+	padding: 16px;
+	margin: 10px 0;
+	width: 100%;
+}
+
+#confirmation p{
+	border-bottom: 1px solid #edb151;
+	padding-bottom: 20px;
+	margin-bottom: 20px;
+}
+
+#final_preview{
+	float: left;
+	clear: left;
+}
+
+.or{
+	float: left;
+	margin: 29px 10px 0px 10px;
+}
+
+.item_container{
+	float: left;
+	padding: 10px;
+	border: 1px solid #ddd;
+	margin: 10px;
+	width: 150px;
+	height: 275px;
+}
+
+h4.item_title, p.item_price{
+	width: 100%;
+	text-align: center;
+}
+
+p.item_price{
+	
+}
+
+.cards_sidebar{
+	float: left;
+	width: 200px;
+}
+
+.items_with_sidebar{
+	float: left;
+	width: 800px;	
+}

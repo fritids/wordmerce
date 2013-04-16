@@ -1,0 +1,13 @@
+select.cc_select{
+	float: left;
+	width: 100%;
+}
+
+.modal{
+	margin: 0 0 0 -280px!important;
+}
+
+#loading_status{
+	float: left;
+	width: 100%;
+}

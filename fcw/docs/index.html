@@ -1,0 +1,1257 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<head lang="en">
+	<meta http-equiv="content-type" content="text/html;charset=utf-8">
+	<title>FCW Framework Documentation</title>
+	<!-- Framework CSS -->
+	<link rel="stylesheet" href="assets/blueprint-css/screen.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="assets/blueprint-css/print.css" type="text/css" media="print">
+	<!--[if lt IE 8]><link rel="stylesheet" href="assets/blueprint-css/ie.css" type="text/css" media="screen, projection"><![endif]-->
+	<link rel="stylesheet" href="assets/blueprint-css/plugins/fancy-type/screen.css" type="text/css" media="screen, projection">
+	<style type="text/css" media="screen">
+		p, table, hr, .box { margin-bottom:25px; }
+		.box p { margin-bottom:10px; }
+	</style>
+</head>
+
+
+<body>
+	<div class="container">
+	
+		<h3 class="center alt">&ldquo;FCW TEMPLATE&rdquo; Documentation by &ldquo;Fish Can't Whistle&rdquo; v1.0</h3>
+		
+		<hr>
+		
+		<h1 class="center">&ldquo;FCW Framework&rdquo;</h1>
+		
+		<div class="borderTop">
+			<div class="span-6 colborder info prepend-1">
+				<p class="prepend-top">
+					<strong>
+					Updated: 10/12/2012<br>
+					By: Andy Charrington-Wilden<br>
+					Email: <a href="mailto:andy@fishcantwhistle.com">andy@fishcantwhistle.com</a>
+					</strong>
+				</p>
+			</div><!-- end div .span-6 -->		
+	
+			<div class="span-12 last">
+				<p class="prepend-top append-0">The FCW Framework is a collection of classes written by Fish Can't Whistle with the aim of speeding up development time. The framework will continue expanding as we add more functionality.</p>
+			</div>
+		</div><!-- end div .borderTop -->
+		
+		<hr>
+		
+		<h3><strong>Include, Initialise and Configure</strong></h3>
+		<p>To include the framework upload it to your existing directory structure then include the load.php file</p>
+		
+		<pre>
+		
+include_once('fcw/load.php');
+		
+		</pre>
+
+		<p>Included in the root of the framework directory is a file called config.php. This is the file you need to edit depending on the needs of each of your projects using the framework.</p> 
+		
+		<p>A variable called $config needs to be set. You're best bet is to just edit the one that's already there. Here is an example of the config variable</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress'=>array(
+			'custommetabox',
+			'shortcode'
+		),
+		'mysqlconnection',
+		'facebook_connect',
+		'ajax'
+	),
+	'paths' => array(
+		'url' => 'http://google.com',
+		'fcw_path' => 'fcw_new_dir'
+	)
+);
+		
+		</pre>
+		
+		<p>This config initialises the 'wordpress', 'mysqlconnection', 'facebook_connect' and 'ajax' modules. It additionally initialises submodules of the WordPress module. To call a submodule of a module you must set the key to module name and the value to an array of the submodules.</p>
+		
+		<p>You can call the same modules more than once (for example in multiple WordPress plugins) without redeclaration errors. The framework will check to see if a module is already loaded before loading it.
+
+		<hr>
+		
+		<h2 id="top" class="alt">Modules</h2>
+		<ul class="alpha">
+			<li>
+				<a href="#wordpress">WordPress</a>
+				<ul>
+					<li><a href="#cronjob">Cron Job</a></li>
+					<li><a href="#settingspage">Settings Page</a></li>
+					<li><a href="#customposttype">Custom Post Type</a></li>
+					<li><a href="#customtaxonomy">Custom Taxonomy</a></li>
+					<li><a href="#custommetabox">Custom Meta Box</a></li>
+				</ul>
+			</li>
+		</ul>
+		
+		<hr>
+		
+		<h3 id="wordpress"><strong>Wordpress</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress'
+	)
+);
+		
+		</pre>
+		
+		<p>By itself, this module doesn't do anything other than set up the action hook ready for the submodules.</p>
+				
+		<hr>
+		
+		<h3 id="cronjob"><strong>Cron Job</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress' => array(
+			'cronjob'
+		)
+	)
+);
+		
+		</pre>
+		
+		<p></p>
+				
+		<hr>
+		
+		<h3 id="settingspage"><strong>Settings Page</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress' => array(
+			'settingspage'
+		)
+	)
+);
+		
+		</pre>
+		
+		<p>Initialise the module by calling the class 'settingspage' passing through an array of args.</p>
+		
+		<pre>
+		
+$args = array(
+	'title' => 'Home Page Footer Links',
+	'menu_title' => 'Footer Links',
+	'description' => 'Description of what this page is about...',
+	'capability' => 'manage_options',
+	'slug' => 'footer_links',
+	'sections' => array(
+		'Text' => array(
+			array(
+				'name' => 'Test Text',
+				'desc' => 'field description (optional)',
+				'id'   => $prefix . 'test_text',
+				'type' => 'text',
+			),
+			array(
+				'name' => 'Test Text 2',
+				'desc' => 'field description (optional)',
+				'id'   => $prefix . 'test_text2',
+				'type' => 'text',
+			)
+		),
+		'Radio' => array(
+			array(
+				'name'    => 'Test Radio',
+				'desc'    => 'field description (optional)',
+				'id'      => $prefix . 'test_radio',
+				'type'    => 'radio',
+				'options' => array(
+					array( 'name' => 'Option One', 'value' => 'standard', ),
+					array( 'name' => 'Option Two', 'value' => 'custom', ),
+					array( 'name' => 'Option Three', 'value' => 'none', ),
+				)
+			)
+		)	
+	
+	)
+);
+
+$settings_page = new settingspage($args);
+		
+		</pre>
+		
+		<p>Will produce the following settings page:</p>
+		
+		<img src="assets/images/settingspage1.png" />
+		
+		<p>To call the values, call the setting first (which is the slug):</p>
+		
+		<pre>
+		
+$settings = get_option('footer_links');
+		
+		</pre>
+		
+		<p>Then access the values which are stored as an array:</p>
+		
+		<pre>
+		
+echo $settings['test_text'];
+		
+		</pre>
+				
+		<hr>
+		
+		<h3 id="customposttype"><strong>Custom Post Type</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress' => array(
+			'customposttype'
+		)
+	)
+);
+		
+		</pre>
+		
+		<p>Initialise the module by calling the class 'customposttype' passing through an array of args.</p>
+		
+		<pre>
+		
+$args = array(
+	'name' => 'Suppliers',
+	'singular_name' => 'Supplier',
+	'add_new' => 'Add new',
+	'add_new_item' => 'Add new supplier',
+	'edit_item' => 'Edit supplier',
+	'new_item' => 'New Supplier',
+	'all_items' => 'All suppliers',
+	'view_item' => 'View supplier',
+	'search_items' => 'Search suppliers',
+	'not_found' => 'Supplier not found',
+	'not_found_in_trash' => 'Supplier not found in trash',
+	'parent_item_colon' => ':',
+	'menu_name' => 'Suppliers',
+	'public' => true,
+	'publicly_queryable' => true,
+	'show_ui' => true, 
+	'show_in_menu' => true, 
+	'query_var' => true,
+	'slug' => 'suppliers',
+	'capability_type' => 'post',
+	'has_archive' => true, 
+	'hierarchical' => false,
+	'menu_position' => null,
+	'menu_icon' => 'path/to/menu/icon'
+	'supports' => array( 'title', 'editor', 'thumbnail' )
+);
+
+$suppliers = new customposttype($args);
+		
+		</pre>
+		
+		<p>Set the default text in the title field using the function edit_title_text() on the class. The function takes one argument being a string of the text you would like to use:</p>
+		
+		<pre>
+		
+$suppliers->edit_title_text('Enter Supplier Name');
+		
+		</pre>
+		
+		<p>The class will automatically lowercase your custom post type name and replace spaces with underscores so if you need to get the sanitised version of the custom post type name, use the function name() like this: </p>
+		
+		<pre>
+		
+echo $suppliers->name();
+//Would echo 'suppliers'
+		
+		</pre>
+				
+		<hr>
+		
+		<h3 id="customtaxonomy"><strong>Custom Taxonomy</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress' => array(
+			'customtaxonomy'
+		)
+	)
+);
+		
+		</pre>
+	
+		<p>Initialise the module by calling the class 'customtaxonomy' passing through an array of args.</p>
+		
+		<pre>
+		
+$args = array(
+	'name' => 'Supplier Categories',
+	'singular_name' => 'Supplier Category',
+	'search_items' =>  'Search Categories',
+	'all_items' => 'All Categories',
+	'parent_item' => 'Parent Category',
+	'parent_item_colon' => 'Parent Category: ',
+	'edit_item' => 'Edit Category', 
+	'update_item' => 'Update Category',
+	'add_new_item' => 'Add New Supplier Category',
+	'new_item_name' => 'New Category',
+	'menu_name' => 'Categories',
+	'post_types' => array('suppliers'),
+	'hierarchical' => false,
+	'labels' => true,
+	'show_ui' => true,
+	'query_var' => true,
+	'rewrite' => array( 'slug' => 'suppliers' ),
+    
+);
+
+$categories = new customtaxonomy($args);
+		
+		</pre>	
+		
+		<p>Which would produce a Categories menu item under the Suppliers CPT (because we passed in 'suppliers' in the post_types array) with a page like this-</p>
+		
+		<img src="assets/images/taxonomy1.png" />
+					
+		<hr>
+		
+		<h3 id="custommetabox"><strong>Custom Meta Box</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress' => array(
+			'custommetabox'
+		)
+	)
+);
+		
+		</pre>
+		
+		<p>Initialise the module by calling the class 'custommetabox' passing through an array of args.</p>
+		
+		<pre>
+		
+$meta_boxes[] = array(
+		'id'         => 'test_metabox',
+		'title'      => 'Test Metabox',
+		'pages'      => array( 'page', ), // Post type
+		'context'    => 'normal',
+		'priority'   => 'high',
+		'show_names' => true, // Show field names on the left
+		'fields'     => array(
+			array(
+				'name' => 'Test Text',
+				'desc' => 'field description (optional)',
+				'id'   => $prefix . 'test_text',
+				'type' => 'text',
+			)
+		),
+	);
+
+
+$metabox = new custommetabox($meta_boxes);
+		
+		</pre>
+		
+		<p>In the above example we are creating a meta box called Test Metabox to appear on pages only and with a field of type text clled text_text.</p>
+		
+		<p>Here is an example of all the possible meta fields that can be added:</p>
+		
+		<pre>
+		
+	$meta_boxes = array (
+		'id' => 'unique_id_here',
+		'title' => 'Everything',
+		'fields' => 
+		array (
+			0 => 
+			array (
+				'key' => 'field_2',
+				'label' => 'Default',
+				'name' => 'tab_1',
+				'type' => 'tab',
+				'order_no' => 0,
+				'instructions' => '',
+				'required' => '0',
+				'id' => 'acf-tab_1',
+				'class' => 'tab',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+			),
+			1 => 
+			array (
+				'key' => 'field_3',
+				'label' => 'Text',
+				'name' => 'text',
+				'type' => 'text',
+				'order_no' => 1,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-text',
+				'class' => 'text',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'default_value' => 'default',
+				'formatting' => 'html',
+			),
+			2 => 
+			array (
+				'key' => 'field_4',
+				'label' => 'Text Area',
+				'name' => 'text_area',
+				'type' => 'textarea',
+				'order_no' => 2,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-text_area',
+				'class' => 'textarea',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'default_value' => 'default',
+				'formatting' => 'br',
+			),
+			3 => 
+			array (
+				'key' => 'field_5',
+				'label' => 'WYSIWYG',
+				'name' => 'wysiwyg',
+				'type' => 'wysiwyg',
+				'order_no' => 3,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-wysiwyg',
+				'class' => 'wysiwyg',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'default_value' => 'default',
+				'toolbar' => 'full',
+				'media_upload' => 'yes',
+				'the_content' => 'yes',
+			),
+			4 => 
+			array (
+				'key' => 'field_6',
+				'label' => 'Image',
+				'name' => 'image',
+				'type' => 'image',
+				'order_no' => 4,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-image',
+				'class' => 'image',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'save_format' => 'id',
+				'preview_size' => 'thumbnail',
+			),
+			5 => 
+			array (
+				'key' => 'field_7',
+				'label' => 'File',
+				'name' => 'file',
+				'type' => 'file',
+				'order_no' => 5,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-file',
+				'class' => 'file',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'save_format' => 'object',
+			),
+			6 => 
+			array (
+				'key' => 'field_8',
+				'label' => 'Number',
+				'name' => 'number',
+				'type' => 'number',
+				'order_no' => 6,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-number',
+				'class' => 'number',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'default_value' => 'default',
+			),
+			7 => 
+			array (
+				'key' => 'field_9',
+				'label' => 'Select',
+				'name' => 'select',
+				'type' => 'select',
+				'order_no' => 7,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-select',
+				'class' => 'select',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'null',
+							'operator' => '==',
+							'value' => '',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'choices' => 
+				array (
+					'red' => 'Red',
+					'blue' => 'Blue',
+				),
+				'default_value' => 'red',
+				'allow_null' => '0',
+				'multiple' => '0',
+			),
+			8 => 
+			array (
+				'key' => 'field_10',
+				'label' => 'Checkbox',
+				'name' => 'checkbox',
+				'type' => 'checkbox',
+				'order_no' => 8,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-checkbox',
+				'class' => 'checkbox',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'choices' => 
+				array (
+					'red' => 'Red',
+					'blue' => 'Blue',
+				),
+			),
+			9 => 
+			array (
+				'key' => 'field_11',
+				'label' => 'Radio Button',
+				'name' => 'radio_button',
+				'type' => 'radio',
+				'order_no' => 9,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-radio_button',
+				'class' => 'radio',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'choices' => 
+				array (
+					'red' => 'Red',
+					'blue' => 'Blue',
+				),
+				'default_value' => 'red',
+				'layout' => 'vertical',
+			),
+			10 => 
+			array (
+				'key' => 'field_12',
+				'label' => 'True False',
+				'name' => 'true_false',
+				'type' => 'true_false',
+				'order_no' => 10,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-true_false',
+				'class' => 'true_false',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'message' => 'Here\'s a message',
+			),
+			11 => 
+			array (
+				'key' => 'field_13',
+				'label' => 'Page Link',
+				'name' => 'page_link',
+				'type' => 'page_link',
+				'order_no' => 11,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-page_link',
+				'class' => 'page_link',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'post_type' => 
+				array (
+					0 => '',
+				),
+				'allow_null' => '0',
+				'multiple' => '0',
+			),
+			12 => 
+			array (
+				'key' => 'field_14',
+				'label' => 'Post Object',
+				'name' => 'post_object',
+				'type' => 'post_object',
+				'order_no' => 12,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-post_object',
+				'class' => 'post_object',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'post_type' => 
+				array (
+					0 => '',
+				),
+				'taxonomy' => 
+				array (
+					0 => 'category:1',
+				),
+				'allow_null' => '0',
+				'multiple' => '0',
+			),
+			13 => 
+			array (
+				'key' => 'field_15',
+				'label' => 'Relationship',
+				'name' => 'relationship',
+				'type' => 'relationship',
+				'order_no' => 13,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-relationship',
+				'class' => 'relationship',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'post_type' => 
+				array (
+					0 => '',
+				),
+				'taxonomy' => 
+				array (
+					0 => 'category:1',
+				),
+				'max' => '10',
+			),
+			14 => 
+			array (
+				'key' => 'field_16',
+				'label' => 'Date Picker',
+				'name' => 'date_picker',
+				'type' => 'date_picker',
+				'order_no' => 14,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-date_picker',
+				'class' => 'date_picker',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'date_format' => 'yymmdd',
+				'display_format' => 'dd/mm/yy',
+			),
+			15 => 
+			array (
+				'key' => 'field_17',
+				'label' => 'Color Picker',
+				'name' => 'color_picker',
+				'type' => 'color_picker',
+				'order_no' => 15,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-color_picker',
+				'class' => 'color_picker',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => '1360352974636',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'default_value' => '#ffffff',
+			),
+			16 => 
+			array (
+				'key' => 'field_18',
+				'label' => 'Repeater',
+				'name' => '',
+				'type' => 'tab',
+				'order_no' => 16,
+				'instructions' => '',
+				'required' => '0',
+				'id' => 'acf-',
+				'class' => 'tab',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+			),
+			17 => 
+			array (
+				'key' => 'field_19',
+				'label' => 'Repeater Group',
+				'name' => 'repeater_group',
+				'type' => 'repeater',
+				'order_no' => 17,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-repeater_group',
+				'class' => 'repeater',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'sub_fields' => 
+				array (
+					'field_20' => 
+					array (
+						'key' => 'field_20',
+						'label' => 'Text',
+						'name' => 'text',
+						'type' => 'text',
+						'instructions' => 'Instructions',
+						'column_width' => '50',
+						'default_value' => 'default',
+						'formatting' => 'html',
+						'order_no' => 0,
+					),
+					'field_21' => 
+					array (
+						'key' => 'field_21',
+						'label' => 'Image',
+						'name' => 'image',
+						'type' => 'image',
+						'instructions' => 'Instructions',
+						'column_width' => '50',
+						'save_format' => 'object',
+						'preview_size' => 'thumbnail',
+						'order_no' => 1,
+					),
+				),
+				'row_min' => '1',
+				'row_limit' => '10',
+				'layout' => 'table',
+				'button_label' => 'Add Row',
+			),
+			18 => 
+			array (
+				'key' => 'field_22',
+				'label' => 'Flexible Content',
+				'name' => '',
+				'type' => 'tab',
+				'order_no' => 18,
+				'instructions' => '',
+				'required' => '0',
+				'id' => 'acf-',
+				'class' => 'tab',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+			),
+			19 => 
+			array (
+				'key' => 'field_23',
+				'label' => 'Flexible Content',
+				'name' => 'flexible_content',
+				'type' => 'flexible_content',
+				'order_no' => 19,
+				'instructions' => 'Instructions',
+				'required' => '0',
+				'id' => 'acf-flexible_content',
+				'class' => 'flexible_content',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'layouts' => 
+				array (
+					0 => 
+					array (
+						'label' => 'Label',
+						'name' => 'label',
+						'display' => 'row',
+						'sub_fields' => 
+						array (
+							'field_24' => 
+							array (
+								'key' => 'field_24',
+								'label' => 'Text',
+								'name' => 'text',
+								'type' => 'text',
+								'instructions' => 'Instructions',
+								'column_width' => '100',
+								'default_value' => 'default',
+								'formatting' => 'html',
+								'order_no' => 0,
+							),
+						),
+					),
+				),
+				'button_label' => 'Add Row',
+			),
+			20 => 
+			array (
+				'key' => 'field_25',
+				'label' => 'Gallery',
+				'name' => '',
+				'type' => 'tab',
+				'order_no' => 20,
+				'instructions' => '',
+				'required' => '0',
+				'id' => 'acf-',
+				'class' => 'tab',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+			),
+			21 => 
+			array (
+				'key' => 'field_26',
+				'label' => 'Gallery',
+				'name' => 'gallery',
+				'type' => 'gallery',
+				'order_no' => 21,
+				'instructions' => '',
+				'required' => '0',
+				'id' => 'acf-gallery',
+				'class' => 'gallery',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'field_9',
+							'operator' => '==',
+							'value' => 'red',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'preview_size' => 'thumbnail',
+			),
+		),
+		'location' => 
+		array (
+			'rules' => 
+			array (
+				1 => 
+				array (
+					'param' => 'post_type',
+					'operator' => '==',
+					'value' => 'post',
+					'order_no' => 1,
+				),
+				2 => 
+				array (
+					'param' => 'user_type',
+					'operator' => '!=',
+					'value' => 'editor',
+					'order_no' => 2,
+				),
+				3 => 
+				array (
+					'param' => 'page',
+					'operator' => '==',
+					'order_no' => 3,
+				),
+				4 => 
+				array (
+					'param' => 'page_type',
+					'operator' => '==',
+					'value' => 'front_page',
+					'order_no' => 4,
+				),
+				5 => 
+				array (
+					'param' => 'page_parent',
+					'operator' => '==',
+					'order_no' => 5,
+				),
+				6 => 
+				array (
+					'param' => 'page_template',
+					'operator' => '!=',
+					'value' => 'page-templates/front-page.php',
+					'order_no' => 6,
+				),
+				7 => 
+				array (
+					'param' => 'post',
+					'operator' => '==',
+					'value' => '136',
+					'order_no' => 7,
+				),
+				8 => 
+				array (
+					'param' => 'post_category',
+					'operator' => '==',
+					'value' => '1',
+					'order_no' => 8,
+				),
+				9 => 
+				array (
+					'param' => 'post_format',
+					'operator' => '==',
+					'value' => 'aside',
+					'order_no' => 9,
+				),
+				10 => 
+				array (
+					'param' => 'taxonomy',
+					'operator' => '==',
+					'value' => '1',
+					'order_no' => 10,
+				),
+				11 => 
+				array (
+					'param' => 'ef_taxonomy',
+					'operator' => '==',
+					'value' => 'all',
+					'order_no' => 11,
+				),
+				12 => 
+				array (
+					'param' => 'ef_user',
+					'operator' => '==',
+					'value' => 'all',
+					'order_no' => 12,
+				),
+				13 => 
+				array (
+					'param' => 'ef_media',
+					'operator' => '==',
+					'value' => 'all',
+					'order_no' => 13,
+				),
+				14 => 
+				array (
+					'param' => 'post_type',
+					'operator' => '==',
+					'value' => 'post',
+					'order_no' => 14,
+				),
+				15 =>
+				array (
+					'param' => 'options_page',
+					'operator' => '==',
+					'value' => 'acf-options',
+					'order_no' => 14,
+				),
+			),
+			'allorany' => 'any',
+		),
+		'options' => 
+		array (
+			'position' => 'normal',
+			'layout' => 'default',
+			'hide_on_screen' => 
+			array (
+				0 => 'the_content',
+				1 => 'excerpt',
+				2 => 'custom_fields',
+				3 => 'discussion',
+				4 => 'comments',
+				5 => 'revisions',
+				6 => 'slug',
+				7 => 'author',
+				8 => 'format',
+				9 => 'featured_image',
+				10 => 'categories',
+				11 => 'tags',
+				12 => 'send-trackbacks',
+			),
+		),
+		'menu_order' => 0,
+	);
+
+$metabox = new custommetabox($meta_boxes);
+		
+		</pre>
+				
+		<hr>
+		
+		<!--
+		<h3 id="ANOCHOR"><strong>TITLE</strong> - <a href="#top">top</a></h3>
+		
+		<p>Call from config using:</p>
+		
+		<pre>
+		
+$config = array(
+	'modules' => array(
+		'wordpress'
+	)
+);
+		
+		</pre>
+		
+		<p>Initialise the module by calling the class 'customposttype' passing through an array of args.</p>
+				
+		<hr>
+		-->
+		
+		<!--
+<p></p> 
+		
+		<p class="append-bottom alt large"><strong>Your Name</strong></p>
+-->
+		<p><a href="#top">Go To Table of Contents</a></p>
+		
+		<hr class="space">
+	</div><!-- end div .container -->
+</body>
+</html>
