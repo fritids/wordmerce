@@ -1,8 +1,8 @@
 <?php
 
-if( !class_exists( 'acf_Hidden' ) && class_exists( 'acf_Field' ) ) :
+if( !class_exists( 'acf_hidden' ) && class_exists( 'acf_Field' ) ) :
 
-class acf_Hidden extends acf_Field
+class acf_hidden extends acf_Field
 {
 	
 	/*--------------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ class acf_Hidden extends acf_Field
 	
 	function create_field($field)
 	{
-		echo '<input type="hidden" disabled value="' . $field['value'] . '" id="' . $field['id'] . '" class="' . $field['class'] . '" name="' . $field['name'] . '" />';
+		echo '<input type="hidden" value="' . $field['value'] . '" id="' . $field['id'] . '" class="' . $field['class'] . '" name="' . $field['name'] . '" />';
 	}
 	
 	

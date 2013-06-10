@@ -11,3 +11,93 @@ select.cc_select{
 	float: left;
 	width: 100%;
 }
+
+.item_container{
+	float: left;
+	padding: 10px;
+	border: 1px solid #ddd;
+	margin: 10px;
+	width: 150px;
+	min-height: 200px;
+}
+
+h4.item_title, p.item_price{
+	width: 100%;
+	text-align: center;
+}
+
+p.item_price{
+	
+}
+
+.items_with_sidebar{
+	float: left;
+	width: 800px;	
+}
+
+#product_buy_form{
+	float: left;
+	width: 100%;
+}
+
+#product_buy_form label{
+	float: left;
+	margin: 0 10px;
+	color: #666;
+}
+
+#product_buy_form input.left{
+	float: left;
+}
+
+#product_buy_form input.small{
+	width: 60px;
+}
+
+
+.simpleCart_items table{
+	border:1px solid #ccc;
+}
+.simpleCart_items th{
+	color:#333;
+	text-align:left;
+	padding:10px 30px;
+	border-bottom:1px solid #ccc;
+	background: #ededed;
+	background: -moz-linear-gradient(top,  #f7f7f7 0%, #ededed 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#ededed));
+	background: -webkit-linear-gradient(top,  #f7f7f7 0%,#ededed 100%);
+	background: -o-linear-gradient(top,  #f7f7f7 0%,#ededed 100%);
+	background: -ms-linear-gradient(top,  #f7f7f7 0%,#ededed 100%);
+	background: linear-gradient(top,  #f7f7f7 0%,#ededed 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#ededed',GradientType=0 );
+}
+.simpleCart_items td{
+	padding:10px 30px;
+	vertical-align:middle;
+	border-bottom:1px solid #ccc;
+	
+}
+.item-image,
+.item-image img{width:72px;}
+.item-name{width:50%;}
+.item-quantity,
+.item-quantity input{
+	width:30px;
+	text-align:center;
+}
+.item-price,
+.item-subtotal{width:50px;}
+
+small{
+	font-size: 13px;
+	margin-left: 10px;
+	color: #aaa;
+}
+
+.spin{
+	float: left;
+	height: 20px;
+	width: 20px;
+	margin-left: 10px;
+}

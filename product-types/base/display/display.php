@@ -4,7 +4,7 @@
 
 class base_product{
 
-	protected $home_page, $slug, $cats, $confirm, $return, $register, $email_replace_tags;
+	protected $home_page, $slug, $cats, $confirm, $return, $register, $email_replace_tags, $product_types_no, $post_types, $all, $item, $checkout, $cart;
 
 	public function base_product(){
 		
@@ -20,13 +20,27 @@ class base_product{
 		
 		$this->slug = $home_page->post_name;
 		
+		$this->home_name = $home_page->post_title;
+		
 		$this->cats = 'categories';
+		
+		$this->all = 'all';
 				
 		$this->confirm = 'confirm';
 		
 		$this->account = 'account';
+		
+		$this->checkout = 'checkout';
+		
+		$this->cart = 'cart';
 				
 		$this->return = 'return';
+		
+		$this->item = 'item';
+		
+		$this->product_types_no = get_option('options_product_types');
+		
+		$this->post_types = array();
 		
 		add_option('base_product', array(
 			'home_page' => $this->home_page,
@@ -50,6 +64,20 @@ class base_product{
 		
 		add_filter('email_tags_replace', array(&$this, 'email_tags_replace'), 10, 3);
 		
+		add_filter('wm_image_src', array(&$this, 'wm_image_src'), 10, 2);
+		
+		$i = 0; 
+		
+		while($i < $this->product_types_no){
+		
+			$name = get_option('options_product_types_'.$i.'_product_name');
+			
+			$this->post_types[] = preg_replace("/[^a-zA-Z0-9]+/", "", strtolower($name));
+			
+			$i++;
+			
+		}
+		
 	}
 	
 	public function slug(){
@@ -62,6 +90,7 @@ class base_product{
 		$aVars[] = "shop_page"; 
 		$aVars[] = "item";
 		$aVars[] = "TD_id";
+		$aVars[] = "type";
 		return $aVars;
 	}
 	
@@ -72,8 +101,9 @@ class base_product{
 			$home_page = get_post($this->home_page);
 				
 			$newrules = array();
-			$newrules[$this->slug.'/([^/]+)/?$'] = 'index.php?pagename='.$home_page->post_name.'&shop_page=$matches[1]';
-			$newrules[$this->slug.'/([^/]+)/([^/]+)/?$'] = 'index.php?pagename='.$home_page->post_name.'&shop_page=$matches[1]&item=$matches[2]';
+			$newrules[$this->slug.'/([^/]+)/?$'] = 'index.php?pagename='.$home_page->post_name.'&type=$matches[1]';
+			$newrules[$this->slug.'/([^/]+)/([^/]+)/?$'] = 'index.php?pagename='.$home_page->post_name.'&type=$matches[1]&shop_page=$matches[2]';
+			$newrules[$this->slug.'/([^/]+)/([^/]+)/([^/]+)/?$'] = 'index.php?pagename='.$home_page->post_name.'&type=$matches[1]&shop_page=$matches[2]&item=$matches[3]';
 			$newrules[$this->slug] = 'index.php?pagename='.$home_page->post_name;
 			return $newrules + $rules;
 		
@@ -87,62 +117,40 @@ class base_product{
 	
 	function show_content($content){
 	
-		$return = '';
+		$return = do_action('wordmerce/before_content');
 		
 		global $wpdb, $post, $type, $wp_query; 
 		
 		//echo '<pre>'; print_r($wp_query);
 		
-		if(isset($wp_query->query_vars['shop_page'])) {
+		if(isset($wp_query->query_vars['type']) && isset($wp_query->query_vars['shop_page']) && isset($wp_query->query_vars['item'])) {
 		
-			switch($wp_query->query_vars['shop_page']){
-			
-				case $this->cats:
-				
-					if(isset($wp_query->query_vars['item'])){
+			$return = $this->go_to($wp_query->query_vars['shop_page'], $wp_query->query_vars['type'], $wp_query->query_vars['item']);
+		
+		}elseif(isset($wp_query->query_vars['type']) && isset($wp_query->query_vars['shop_page'])){
 
-						$return = $this->show_all_items($wp_query->query_vars['item']);
-						
-					}else{
-				
-						$return = $this->show_all_items();
-					
-					}
-				
-				break;
-				
-				case $this->item:
-
-					$return = $this->item_page($wp_query->query_vars['item']);
-				
-				break;
-				
-				case $this->confirm:
-				
-					$return = $this->confirm_page($wp_query->query_vars['item']);
-				
-				break;
-				
-				case $this->return:
-				
-					$return = $this->cancelled_page($wp_query->query_vars['item']);
-				
-				break;
-				
-				case $this->account:
-				
-					$return = $this->account_page();
-				
-				break;
+			$return = $this->go_to('', $wp_query->query_vars['type'], $wp_query->query_vars['shop_page']);
 			
-			}
+		}elseif(isset($wp_query->query_vars['type'])){
+		
+			$return = $this->go_to('', $wp_query->query_vars['type'], '');
 			
 		}elseif($post->ID == $this->home_page){
-							
-			$return = $this->show_all_items();
+			
+			$return = 'nope';
 			
 		}
 		
+		if($return == 'nope'){
+			
+			$return = $this->go_home((isset($wp_query->query_vars['type']) ? $wp_query->query_vars['type'] : ''));
+			
+		}
+		
+		$return .= do_action('wordmerce/after_content');
+		
+		$return .= '<div class="clearfix"></div>';
+				
 		if($return != ''){
 			
 			echo $return;
@@ -154,8 +162,92 @@ class base_product{
 		}
 		
 	}
+	
+	function go_to($type, $page, $item){
+	
+		$return = '';
 
-	function show_all_items($cat=''){
+		switch($page){
+		
+			case $this->cats:
+		
+				if($item != ''){
+
+					$return = $this->show_all_items($item, '', $type);
+					
+				}else{
+
+					$return = $this->show_all_items('', $type);
+				
+				}
+			
+			break;
+			
+			case $this->item:
+			
+				if($item != ''){
+			
+					$return = $this->item_page($item, $type);
+				
+				}else{
+			
+					$return = 'nope';
+				
+				}
+			
+			break;
+			
+			case $this->confirm:
+			
+				$return = $this->confirm_page($item);
+			
+			break;
+			
+			case $this->return:
+			
+				$return = $this->cancelled_page($item);
+			
+			break;
+			
+			case $this->account:
+			
+				$return = $this->account_page();
+			
+			break;
+			
+			case $this->cart:
+			
+				$orders = new orders;
+				
+				$orders->render_cart();
+			
+			break;
+			
+			default:
+			
+				$return = 'nope';
+			
+			break;
+		
+		}
+		
+		return $return;
+		
+	}
+	
+	function go_home($type){
+
+		$type = ($type != '' ? $type : $this->post_types[0]);
+		
+		$return = $this->show_all_items('', $type);
+		
+		return $return;
+		
+	}
+
+	function show_all_items($cat='', $type='', $tax=''){
+	
+		$type = ($type != '' ? $type : $this->post_types[0]);
 	
 		$show_widget = get_field('show_widget', 'options'); 
 		
@@ -173,7 +265,7 @@ class base_product{
 			
 		}
 
-		do_action('wordmerce/allitems', $cat);
+		do_action('wordmerce/allitems', $cat, $type, $tax);
 		
 		if($show_widget){
 		
@@ -183,19 +275,37 @@ class base_product{
 		
 	}
 	
-	function item_page($card_name){
+	function item_page($name, $type){
+	
+		$type = ($type != '' ? $type : $this->post_types[0]);
 
-		do_action('wordmerce/itempage', $card_name);
+		do_action('wordmerce/itempage', $name, $type);
 		
 	}
 			
 	function enqueue_base_scripts(){
+	
+		wp_deregister_script('jquery');
+				
+		wp_enqueue_script('jquery');
 					
 		wp_enqueue_style( 'bootstrap', plugins_url( 'css/bootstrap.min.css', __FILE__ ) );
 		
 		wp_enqueue_style( 'bootstrap-responsive', plugins_url( 'css/bootstrap-responsive.min.css', __FILE__ ) );
 		
+		$theme = get_field('colour_scheme', 'options');
+		
+		if($theme != 'Default'){
+			
+			wp_enqueue_style( 'base-style-theme', plugins_url( 'css/themes/'. $theme .'.css', __FILE__ ) );
+			
+		}
+		
 		wp_enqueue_style( 'base-style', plugins_url( 'css/style.css', __FILE__ ) );
+		
+		wp_enqueue_script( 'simpleCart', plugins_url( 'js/simpleCart.min.js', __FILE__ ) );
+		
+		wp_enqueue_script( 'spin', plugins_url( 'js/spin.js', __FILE__ ) );
 		
 		wp_enqueue_script( 'bootstrap', plugins_url( 'js/bootstrap.min.js', __FILE__ ) );
 		
@@ -205,7 +315,8 @@ class base_product{
 		
 		wp_localize_script( 'base-scripts', 'base_options', array(
 			'aja_url' => admin_url( 'admin-ajax.php'), 
-			'wordmerce_nonce' => wp_create_nonce( 'wordmerce_nonce' ) 
+			'wordmerce_nonce' => wp_create_nonce( 'wordmerce_nonce' ) ,
+			'basket_id' => (isset($_COOKIE["WM_BASKET"]) ? $_COOKIE["WM_BASKET"] : '')
 		) );
 				
 	}
@@ -572,6 +683,24 @@ class base_product{
 		}
 
 		return $email;
+	}
+	
+	function wm_image_src($image, $id){
+		
+		if($image == ''){
+			
+			$p = get_post($id);
+			
+			$title = $p->post_title;
+			
+			return array('http://placehold.it/150x150&text='.$title, '150', '150');
+			
+		}else{
+			
+			return $image;
+			
+		}
+		
 	}
 
 }

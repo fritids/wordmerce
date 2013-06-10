@@ -27,6 +27,10 @@ class customers{
 		add_action('wp_ajax_signin_login', array(&$this, 'signin_login' ));
 
 		add_action('wp_ajax_nopriv_signin_login', array(&$this, 'signin_login' ));
+		
+		add_action('wp_ajax_customer_add_data_ajax', array(&$this, 'customer_add_data_ajax' ));
+
+		add_action('wp_ajax_nopriv_customer_add_data_ajax', array(&$this, 'customer_add_data_ajax' ));
 	
 	}
 	
@@ -46,6 +50,20 @@ class customers{
 		
 		return get_post_meta($id, $key, true);
 		
+	}
+	
+	function customer_add_data_ajax(){
+		
+		$nonce = $_POST['wordmerce_nonce'];
+		
+		if ( ! wp_verify_nonce( $nonce, 'wordmerce_nonce' ) )
+			die ( 'Busted!');
+			
+		if( $this->add_data($_POST['id'], $_POST['key'], $_POST['value'])){
+			echo 'yup';
+		}
+		
+		die();
 	}
 	
 	function add_data($id, $key, $value){
@@ -251,25 +269,33 @@ class customers{
 	}
 	
 	function does_exist($user){
-	    
-	    $args = array(
-		   'numberposts' => 1,
-		   'post_type' => 'customers',
-		   'post_status' => array( 'publish', 'pending', 'draft'),
-		   'meta_query' => array(
-		       array(
-		           'key' => 'id',
-		           'value' => $user['id'],
-		           'compare' => '=',
-		       )
-		   )
-		);
-		$customer = get_posts ( $args );
+	   
+	    if($user['id'] != ''){
+
+		    $args = array(
+			   'numberposts' => 1,
+			   'post_type' => 'customers',
+			   'post_status' => array( 'publish', 'pending', 'draft'),
+			   'meta_query' => array(
+			       array(
+			           'key' => 'id',
+			           'value' => $user['id'],
+			           'compare' => '=',
+			       )
+			   )
+			);
+			$customer = get_posts ( $args );
+	
+			if(count($customer) > 0){
+				
+				return $customer[0];
+				
+			}else{
+				
+				return false;
+				
+			}
 		
-		if(count($customer) > 0){
-			
-			return $customer[0];
-			
 		}else{
 			
 			return false;

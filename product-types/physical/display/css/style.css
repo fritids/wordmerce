@@ -1,0 +1,75 @@
+#product_container{
+	
+}
+
+#product_image_container{
+	
+}
+
+#product_info_container{
+	float: left;
+	width: 50%;
+}
+
+#product_description{
+	float: left;
+	width: 100%;
+	word-wrap: break-word;
+}
+
+h1.product_title{
+	
+}
+
+#product_buy_container{
+	float: right;
+	width: 43%;
+/*
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	min-height: 20px;
+	background: #eeeeee;
+*/
+	padding: 1%;
+}
+
+h2.updated_price{
+	font-size: 20px;
+	color: #333;
+	width: 100%;
+	text-align: left;
+}
+
+.extra_container{
+	float: left;
+	width: 100%;
+	font-size: 10.5px;
+	margin: 3px 0;
+}
+
+.extra_container span{
+	width: 25%;
+	float: left;
+	text-align: center;
+}
+
+.extra_container .btn-info, .extra_container .add_to_basket{
+
+}
+
+.updated_price.right{
+	text-align: right;
+}
+
+.input-prepend.input-append .add-on:last-child, .input-prepend.input-append .btn:last-child{
+	height: 30px;
+	color: #333!important;
+}
+
+.btn{
+	color: #333!important;
+}
+
+.page-header.collapse{
+	padding: 0;
+}

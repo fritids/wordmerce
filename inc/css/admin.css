@@ -31,7 +31,7 @@ table#meta_prev_orders {
 	margin-bottom: -4px;
 }
 
-.label,.badge{display:inline-block;padding:2px 4px;font-size:11.844px;font-weight:bold;line-height:14px;color:#ffffff;vertical-align:baseline;white-space:nowrap;text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25);background-color:#999999;}
+.label,.badge{display:inline-block;padding:2px 4px;font-size:11.844px;font-weight:bold;line-height:14px;color:#ffffff;vertical-align:baseline;white-space:normal;text-shadow:0 -1px 0 rgba(0, 0, 0, 0.25);;}
 .label{-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;}
 .badge{padding-left:9px;padding-right:9px;-webkit-border-radius:9px;-moz-border-radius:9px;border-radius:9px;}
 .label:empty,.badge:empty{display:none;}
@@ -89,3 +89,4 @@ table td[class*="span"],table th[class*="span"],.row-fluid table td[class*="span
 .table-hover tbody tr.error:hover>td{background-color:#ebcccc;}
 .table-hover tbody tr.warning:hover>td{background-color:#faf2cc;}
 .table-hover tbody tr.info:hover>td{background-color:#c4e3f3;}
+

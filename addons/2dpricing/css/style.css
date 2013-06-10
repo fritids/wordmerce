@@ -1,0 +1,15 @@
+table.wm_twod th{
+	font-weight: bold;
+}
+
+table.wm_twod th.top{
+	border-bottom: 1px solid #000
+}
+
+table.wm_twod th.left{
+	border-right: 1px solid #000
+}
+
+.field-csv .has-file .edit-file, .field-csv .has-file .acf-file-name{
+	display: none;
+}

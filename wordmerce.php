@@ -6,10 +6,37 @@ Description:
 Version: 1.0
 Author: Fish Can't Whistle
 */
-					
+
+/*
+if(session_id() == '')
+     session_start();
+*/
+
+global $wpdb;
+
+if(!empty($wpdb->prefix)) {
+  $wp_table_prefix = $wpdb->prefix;
+} else if(!empty($table_prefix)) {
+  $wp_table_prefix = $table_prefix;
+}
+
+define('curreny_code', "GBP");
+
+define('curreny_symbol_raw', "£");
+
+define('currency_symbol', "&pound;");
+
+define('weight_unit', "g");
+
+if (!defined("TPC_location_data_table")) { define("TPC_location_data_table", "{$wp_table_prefix}jm_location_data"); }
+
 update_post_meta('129', 'sales', '21');
 
 include_once(dirname( __FILE__ ) . '/fcw/load.php');
+
+include_once(dirname( __FILE__ ) . '/addons/addons.php');
+
+include_once(dirname( __FILE__ ) . '/includes/location.php');
 
 include_once(dirname( __FILE__ ) . '/includes/customers.php');
 
@@ -59,13 +86,17 @@ class wordmerce{
 		
 		$this->taxonomies = array();
 		
-		$this->gateways = array('dialogue' => 'Dialogue Mobile Payments', 'paypal' => 'Paypal');
+		$this->gateways = array('dialogue' => 'Dialogue Mobile Payments', 'paypal' => 'Paypal', 'paymill' => 'PayMill');
+		
+		$this->shipping = array('flat' => 'Flat Rate', 'weight' => 'Weight Based', 'total' => 'Percentage of total');
 			
 		$this->add_image_sizes();
 				
 		$this->add_settings_page();
 		
 		$this->add_custom_post_types();
+		
+		$this->set_up_shipping();
 		
 		//add_filter('acf_settings', array(&$this, 'acf_settings' ));
 		
@@ -91,9 +122,11 @@ class wordmerce{
 		
 		add_action( 'add_meta_boxes', array(&$this, 'add_events_metaboxes') );
 		
-		$this->set_up_products();
+		add_action( 'init', array(&$this, 'set_up_products') );
 		
-		//$this->set_up_gateways();
+		//$this->set_up_products();
+		
+		$this->set_up_gateways();
 		
 		add_action( 'init', array($this, 'set_up_gateways') );
 		
@@ -119,6 +152,10 @@ class wordmerce{
 		
 		add_image_size( 'page_icon', 36, 34, true );
 		
+		add_image_size( 'product_main', get_option('options_main_image_width'), get_option('options_main_image_height'), true );
+		
+		add_image_size( 'product_thumb', get_option('options_thumb_image_width'), get_option('options_thumb_image_height'), true );
+		
 	}
 	
 	function enqueue_scripts_and_styles(){
@@ -131,7 +168,7 @@ class wordmerce{
 	
 		$args = array(
 			'name' => 'WordMerce',
-			'pages' => array('General', 'Product Types', 'Payment Gateway', 'Notifications')
+			'pages' => array('General', 'Product Types', 'Payment Gateway', 'Notifications', 'Add-ons')
 		);
 	    
 	    $settingspage = new settingspage($args);
@@ -231,6 +268,7 @@ class wordmerce{
 							'layout' => 'table',
 							'button_label' => 'Add a Category',
 						),
+/*
 						array (
 							'key' => 'fields',
 							'label' => 'Fields',
@@ -256,12 +294,13 @@ class wordmerce{
 							),
 							'row_min' => '1',
 							'row_limit' => '10',
-							'layout' => 'row',
+							'layout' => 'table',
 							'button_label' => 'Add Another Field',
 						)
+*/
 					),
 					'row_min' => '1',
-					'layout' => 'row',
+					'layout' => 'table',
 					'button_label' => 'Add Another Product Type',
 				)
 			),
@@ -346,8 +385,119 @@ class wordmerce{
 					'instructions' => 'Show a categories widget on the product archive page?',
 					'default_value' => '',
 					'message' => 'Yes'
+				),
+				array (
+					'key' => 'main_image_width',
+					'label' => 'Product main image width',
+					'name' => 'main_image_width',
+					'type' => 'text',
+					'instructions' => '',
+					'default_value' => '500',
+				),
+				array (
+					'key' => 'main_image_height',
+					'label' => 'Product main image height',
+					'name' => 'main_image_height',
+					'type' => 'text',
+					'instructions' => '',
+					'default_value' => '500',
+				),
+				array (
+					'key' => 'thumb_image_width',
+					'label' => 'Product thumbnail width',
+					'name' => 'thumb_image_width',
+					'type' => 'text',
+					'instructions' => '',
+					'default_value' => '150',
+				),
+				array (
+					'key' => 'thumb_image_height',
+					'label' => 'Product thumbnail height',
+					'name' => 'thumb_image_height',
+					'type' => 'text',
+					'instructions' => '',
+					'default_value' => '150',
+				),
+				array (
+					'key' => 'colour_scheme',
+					'label' => 'Colour Scheme',
+					'name' => 'colour_scheme',
+					'type' => 'select',
+					'instructions' => '',
+					'choices' => array(
+						'Default' => 'Default',
+						'Amelia' => 'Amelia',
+						'Cerulean' => 'Cerulean',
+						'Cosmo' => 'Cosmo',
+						'Cyborg' => 'Cyborg',
+						'Flatly' => 'Flatly',
+						'Journal' => 'Journal',
+						'Readable' => 'Readable',
+						'Simplex' => 'Simplex',
+						'Slate' => 'Slate',
+						'Spacelab' => 'Spacelab',
+						'Superhero' => 'Superhero',
+						'United' => 'United'
+					)
 				)
 			)
+		);
+	
+		$addons = new addons;
+		
+		$addon_fields = array();
+		
+		foreach($addons->addons as $addon){
+
+			$key = strtolower(trim(preg_replace('/[^a-zA-Z0-9]+/', '-', $addon['Name']), '-'));
+			
+			$addon_fields[$key] = array (
+				'key' => $key,
+				'label' => $addon['Name'],
+				'name' => $key,
+				'type' => 'true_false',
+				'instructions' => $addon['Description'],
+				'default_value' => '',
+				'message' => 'Activate'
+			);
+	
+		}
+		
+		$meta_boxes['addons'] = array (
+			'id' => 'add_ons',
+			'title' => 'Add-ons',
+			'options' => array (
+				'position' => 'normal',
+				'layout' => 'default',
+				'hide_on_screen' => 
+				array (
+					'the_content',
+					'excerpt',
+					'custom_fields',
+					'discussion',
+					'comments',
+					'revisions',
+					'slug',
+					'author',
+					'format',
+					'featured_image',
+					'categories',
+					'tags',
+					'send-trackbacks'
+				)
+			),
+			'location' => array (
+				'rules' => 
+				array (
+					array (
+						'param' => 'options_page',
+						'operator' => '==',
+						'value' => 'acf-options-add-ons',
+					),
+				),
+				'allorany' => 'any',
+			),
+			'fields' => $addon_fields
 		);
 		
 		$meta_boxes[] = array (
@@ -422,33 +572,6 @@ array (
 		$options = maybe_unserialize(get_option('options_payment_gateways'));
 		
 		foreach($this->gateways as $k => $v){
-/*
-								
-				$gateway = array (
-					'key' => $k,
-					'label' => $v,
-					'name' => $k,
-					'type' => 'tab',
-					'instructions' => '',
-					'id' => $k,
-					'class' => $k,
-					'conditional_logic' => 
-					array (
-						'status' => '1',
-						'rules' => 
-						array (
-							array (
-								'field' => 'payment_gateways',
-								'operator' => '==',
-								'value' => $k,
-							),
-						),
-						'allorany' => 'all',
-					),
-				);
-			
-				array_push($gateways, $gateway);
-*/
 			
 				include_once(dirname( __FILE__ ) . '/includes/gateways/'.$k.'/fields.php');
 						
@@ -656,6 +779,64 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			)
 		);
 		
+		$shipping_options = array(
+			array (
+				'key' => 'shipping',
+				'label' => 'Choose Your Shipping Method',
+				'name' => 'shipping',
+				'type' => 'radio',
+				'instructions' => '',
+				'id' => 'shipping',
+				'class' => 'shipping',
+				'choices' => $this->shipping
+			)
+		);
+		
+		$options = maybe_unserialize(get_option('options_shipping'));
+		
+		foreach($this->shipping as $k => $v){
+			
+				include_once(dirname( __FILE__ ) . '/includes/shipping/'.$k.'/fields.php');
+						
+		}
+		
+		$meta_boxes[] = array (
+			'id' => 'shipping',
+			'title' => 'Shipping',
+			'options' => array (
+				'position' => 'normal',
+				'layout' => 'default',
+				'hide_on_screen' => 
+				array (
+					'the_content',
+					'excerpt',
+					'custom_fields',
+					'discussion',
+					'comments',
+					'revisions',
+					'slug',
+					'author',
+					'format',
+					'featured_image',
+					'categories',
+					'tags',
+					'send-trackbacks'
+				)
+			),
+			'location' => array (
+				'rules' => 
+				array (
+					array (
+						'param' => 'options_page',
+						'operator' => '==',
+						'value' => 'acf-options-general',
+					),
+				),
+				'allorany' => 'any',
+			),
+			'fields' => $shipping_options
+		);
+		
 		$meta_boxes[] = array (
 			'id' => 'user_details',
 			'title' => 'Details',
@@ -848,6 +1029,8 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			)
 		);
 		
+		$meta_boxes = apply_filters('wm_fields', $meta_boxes);
+		
 		$metaboxes = new custommetabox($meta_boxes);
 		
 	}
@@ -882,7 +1065,74 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 		
 			$emails_sent = array_reverse($emails_sent);
 			
+			$products = get_post_meta($id, 'products', true);
+			
+			$shipping = get_post_meta($id, 'shipping', true);
+			
 			$return = '<p><strong>Status:</strong> <span class="label label-'.$status_class.'">'.$status.'</span></p>';
+			
+			if(is_array($products)){
+							
+				$return .= '<div class="row-fluid"><table id="meta_prev_orders" class="table table-striped table-hover">
+				
+					<thead>
+					
+						<tr>
+					
+							<td>Product Name</td>
+							<td>Quantity</td>
+							<td>Price</td>
+							<td>Sub Total</td>';
+							
+						$return .= '</tr>
+					
+					</thead>
+					
+					<tbody>';
+				
+						foreach($products as $product => $data){ 
+						
+							$return .= '<tr>
+							
+								<td>
+								
+									'.$product.'
+								
+								</td>
+								
+								<td>
+								
+									'.$data['quantity'].'
+								
+								</td>
+								
+								<td>
+								
+									'.$data['price'].'
+								
+								</td>
+								
+								<td>
+								
+									'.$data['total'].'
+								
+								</td>';
+															
+							$return .= '</tr>';
+						
+						}
+				
+					$return .= '</tbody>
+				
+				</table></div>';
+				
+				if(SHIPPING){
+					
+					$return .= '<p><strong>Shipping:</strong> '.$shipping.'</p>';
+					
+				}
+				
+			}
 			
 			if($gateway){
 			
@@ -896,8 +1146,11 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 				
 			}
 			
-			$return .= 'Email receipt was last sent to ' . $email_address . ' on ' . $emails_sent[0];
+			if($status == 3){
 			
+				$return .= 'Email receipt was last sent to ' . $email_address . ' on ' . $emails_sent[0];
+			
+			}
 			
 			return $return;
 					
@@ -917,6 +1170,9 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 			$id = $order->get_customer_id($id);
 			
+			if($id == '')
+				return;
+
 			$customer = new customers;
 			
 			$all_data = $customer->get_data($id, 'user');
@@ -931,7 +1187,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 			$img = $customer->get_data($id, 'thumbnail');
 			
-			$data_src = ($img != '' ? $img : '/holder.js/100x100/social/text:'.$name);
+			$data_src = ($img != '' ? $img : '/holder.js/100x100/social/text:'.$username);
 			
 			$return = '<img style="float: left; margin: 0px 5px 5px 0px;" data-src="'.$data_src.'" src="'.$img.'" />';
 		
@@ -939,7 +1195,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 			$return .= '<br><img class="inline_image" src="'.plugins_url( 'inc/img/email.png', __FILE__ ).'" /> <a href="mailto:'.$email.'">'.$email.'</a>';
 			
-			if($all_data['link']){ $return .= '<br><img class="inline_image" src="'.plugins_url( 'inc/img/link.png', __FILE__ ).'" /> <a href="'.$all_data['link'].'">'.$all_data['link'].'</a>'; }
+			if(isset($all_data['link']) && $all_data['link']){ $return .= '<br><img class="inline_image" src="'.plugins_url( 'inc/img/link.png', __FILE__ ).'" /> <a href="'.$all_data['link'].'">'.$all_data['link'].'</a>'; }
 			
 			$return .= '<br><br style="clear:left;"><strong>Registered with:</strong> '. ucfirst($registered_with).' on '.$date;
 			
@@ -973,7 +1229,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 			$img = $customer->get_data($id, 'thumbnail');
 			
-			$data_src = ($img != '' ? $img : '/holder.js/100x100/social/text:'.$name);
+			$data_src = ($img != '' ? $img : '/holder.js/100x100/social/text:'.$username);
 			
 			$return = '<img style="float: left; margin: 0px 5px 5px 0px;" data-src="'.$data_src.'" src="'.$img.'" />';
 		
@@ -981,7 +1237,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 			$return .= '<br><img class="inline_image" src="'.plugins_url( 'inc/img/email.png', __FILE__ ).'" /> <a href="mailto:'.$email.'">'.$email.'</a>';
 			
-			if($all_data['link']){ $return .= '<br><img class="inline_image" src="'.plugins_url( 'inc/img/link.png', __FILE__ ).'" /> <a href="'.$all_data['link'].'">'.$all_data['link'].'</a>'; }
+			if(isset($all_data['link']) && $all_data['link']){ $return .= '<br><img class="inline_image" src="'.plugins_url( 'inc/img/link.png', __FILE__ ).'" /> <a href="'.$all_data['link'].'">'.$all_data['link'].'</a>'; }
 			
 			$return .= '<br><br style="clear:left;"><strong>Registered with:</strong> '. ucfirst($registered_with).' on '.$date;
 		
@@ -1123,7 +1379,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 					'show_ui' => true, 
 					'show_in_menu' => true, 
 					'query_var' => true,
-					'slug' => preg_replace("/[^a-zA-Z0-9]+/", "", strtolower($name)),
+					'slug' => preg_replace("/[^a-zA-Z0-9]+/", "_", strtolower($name)),
 					'capability_type' => 'post',
 					'has_archive' => true, 
 					'hierarchical' => false,
@@ -1132,7 +1388,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 					'supports' => array( 'title' )
 				);
 				
-				$this->post_types[] = preg_replace("/[^a-zA-Z0-9]+/", "", strtolower($name));
+				$this->post_types[] = preg_replace("/[^a-zA-Z0-9]+/", "_", strtolower($name));
 				
 				$new_product = new customposttype($args);
 			
@@ -1156,7 +1412,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 						'add_new_item' => 'Add New',
 						'new_item_name' => 'New',
 						'menu_name' => $cat_name,
-						'post_types' => array(preg_replace("/[^a-zA-Z0-9]+/", "", strtolower($name))),
+						'post_types' => array(preg_replace("/[^a-zA-Z0-9]+/", "_", strtolower($name))),
 						'hierarchical' => get_option('options_product_types_'.$i.'_categories_'.$ii.'_cat_sub'),
 						'labels' => true,
 						'show_ui' => true,
@@ -1323,18 +1579,20 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 	}
 	
 	function set_up_products(){
-		
+
 		foreach($this->product_types as $post => $type){
 		
-			$post_type = preg_replace("/[^a-zA-Z0-9]+/", "", strtolower($post));
-		
-			include_once($this->dir.'/product-types/base/base.php');
+			$post_type = preg_replace("/[^a-zA-Z0-9]+/", "_", strtolower($post));
+
+			include($this->dir.'/product-types/base/base.php');
 			
-			include_once($this->dir.'/product-types/'.$type.'/'.$type.'.php');
+			include($this->dir.'/product-types/'.$type.'/'.$type.'.php');
+			
+			$meta_boxes = apply_filters('wm_base_fields', $meta_boxes, $post_type);
+			
+			$metaboxes = new custommetabox($meta_boxes);
 			
 		}
-		
-		$metaboxes = new custommetabox($meta_boxes);
 		
 		include_once(dirname(__FILE__).'/product-types/base//display/display.php');
 		
@@ -1466,10 +1724,22 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 	function set_up_gateways(){
 	
 		$gateway = maybe_unserialize(get_option('options_payment_gateways'));
-		
+				
 		if($gateway != ''){
 		
 			include_once(dirname( __FILE__ ) . '/includes/gateways/'.$gateway.'/'.$gateway.'.php');
+		
+		}
+		
+	}
+	
+	function set_up_shipping(){
+			
+		$shipping = maybe_unserialize(get_option('options_shipping'));
+		
+		if($shipping != ''){
+		
+			include_once(dirname( __FILE__ ) . '/includes/shipping/'.$shipping.'/'.$shipping.'.php');
 		
 		}
 		

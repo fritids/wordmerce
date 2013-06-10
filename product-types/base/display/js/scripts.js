@@ -1,6 +1,74 @@
-
-
 jQuery(document).ready(function(){
+
+	simpleCart({
+	    checkout: { 
+	        type: "SendForm" , 
+	        url: "http://example.com/your/custom/checkout/url" 
+	    },
+	    currency: "GBP",
+	    cartStyle: "table",
+	    shippingFlatRate: 0
+	});
+	
+	simpleCart.bind( "afterAdd" , function( item ){
+	
+		var id = new Date().getTime();
+	
+		var message = '<div id="'+id+'" class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'+item.get("name") + ' has been added.</div>';
+	
+		jQuery('.item_add').parent().parent().append(message).delay(2000).queue(function(){
+	
+			jQuery('#'+id).fadeOut();
+	
+		});
+	
+	});
+	
+	simpleCart.bind('beforeAdd',function( item ){
+		
+		jQuery('input:checkbox.add_to_product').each(function () {
+			
+			if(this.checked){
+			
+				var newprice = parseInt(item.get('price')) + parseInt(jQuery(this).attr('data-price'));
+			
+				item.price(newprice);
+				
+				var newname = item.get('name') + ' + ' + jQuery(this).attr('data-name');
+			
+				item.set('name', newname);
+			
+			}
+		
+		});
+		
+		jQuery('select.add_to_product').each(function () {
+
+				var newprice = parseInt(item.get('price')) + parseInt(this.options[this.selectedIndex].getAttribute("data-price"));
+
+				item.price(newprice);
+				
+				var newname = item.get('name') + ' + ' + this.options[this.selectedIndex].getAttribute("data-name");
+			
+				item.set('name', newname);
+						
+		});
+		
+	});
+	
+	simpleCart.bind( 'ready' , function(){
+	
+		update_cart();
+
+	});
+	
+	simpleCart.bind( 'afterSave' , function(){
+	
+		update_cart();
+
+	});
+
+	jQuery('.tooltipthis').tooltip();
 
 	jQuery(document).on('add_order_error', function(e, eventInfo) { 
 	
@@ -134,6 +202,139 @@ jQuery(document).ready(function(){
 		
 	});
 	
+	jQuery('#checkout_progress li a').click(function(){
+		
+		jQuery('#checkout_progress li.active').removeClass('active');
+		
+		jQuery(this).parent().addClass('active');
+		
+		var collapse_this_one = jQuery(this).attr('data-targets');
+
+		jQuery('.collapses').each(function(){
+				
+			jQuery(this).slideUp();
+		
+		});
+		
+		jQuery(collapse_this_one).slideDown();
+		
+		return false;
+		
+	});
+	
+	jQuery('#customer_address input[type="text"], #customer_address select').change(function(){
+	
+		if(jQuery('#user_id').val() != ''){
+		
+			var data = {
+				action: 'customer_add_data_ajax',
+				key: jQuery(this).attr('id'),
+				value: jQuery(this).val(),
+				id: jQuery('#user_id').val(),
+				wordmerce_nonce : base_options.wordmerce_nonce
+			};
+			
+			var input = jQuery(this);
+	
+			jQuery.post(base_options.aja_url, data, function(response) {
+					
+				if(response == 'yup'){
+				
+					input.prev().remove();
+					
+					input.before('<i class="icon-ok-sign pull-left"></i>');
+					
+				}else{
+					
+					input.prev().remove();
+					
+					input.before('<i class="icon-remove-sign pull-left"></i>');
+					
+				}
+			
+			});
+		
+		}
+		
+	});
+	
+	jQuery('#customer_address input[type="text"], #customer_address select').change(function(){
+		
+		var shipping_ok = true;
+		
+		if(!jQuery(this).prev().hasClass('icon-ok-sign')){
+			
+			shipping_ok = false;
+		}
+
+		if(shipping_ok){
+			
+			jQuery('a[data-targets="#checkout_shipping"] i').removeClass('icon-remove').addClass('icon-ok');
+			
+			check_checkout();
+			
+		}else{
+			
+			jQuery('a[data-targets="#checkout_shipping"] i').removeClass('icon-ok').addClass('icon-remove');
+			
+		}
+		
+	});
+	
+	jQuery('#checkout_now_button').click(function(){
+		
+		if(!jQuery(this).hasClass('disabled')){
+		
+			Hook.call( 'payment_process', [] );
+		
+		}else{
+			
+			return false;
+		
+		}
+		
+	});
+	
+	jQuery('.item_Quantity').keyup(function(){
+	
+		disable_cart_stuff();
+    
+	    var input=parseInt(jQuery(this).val());
+	    
+	    var max = jQuery(this).attr('data-max');
+	    
+	    if(parseInt(input) !== input || input<1 || input>max){
+		
+		    show_error('Please enter a quantity between 1 and '+max);
+		    
+		    console.log('error');
+		
+		}else{
+			
+			enable_cart_stuff();
+			
+		}
+		
+		return;
+	
+	});
+	
+});
+
+jQuery('.collapses').each(function(){
+		
+	jQuery(this).slideUp();
+
+});
+
+jQuery('#checkout_basket').slideDown();
+
+jQuery('#checkout_login').live('click', function(){
+
+	jQuery(document).trigger('log_in');
+	
+	return false;
+
 });
 
 jQuery('#login_register').live('click', function(){
@@ -235,8 +436,8 @@ function show_error(error, ele){
 	
 	jQuery(ele + ' #error_message').html(error);
 	
-	jQuery(ele).show();
-	
+	jQuery(ele).show().delay(6000).slideUp();
+		
 }
 
 function randomString(len, charSet) {
@@ -247,4 +448,156 @@ function randomString(len, charSet) {
     	randomString += charSet.substring(randomPoz,randomPoz+1);
     }
     return randomString;
+}
+
+function show_spinner(target){
+
+	jQuery('#'+target).stop().find('.spinner').remove();
+
+	var opts = {
+	  lines: 10, // The number of lines to draw
+	  length: 8, // The length of each line
+	  width: 2, // The line thickness
+	  radius: 3, // The radius of the inner circle
+	  corners: 1, // Corner roundness (0..1)
+	  rotate: 0, // The rotation offset
+	  direction: 1, // 1: clockwise, -1: counterclockwise
+	  color: '#000', // #rgb or #rrggbb
+	  speed: 1, // Rounds per second
+	  trail: 60, // Afterglow percentage
+	  shadow: false, // Whether to render a shadow
+	  hwaccel: false, // Whether to use hardware acceleration
+	  className: 'spinner', // The CSS class to assign to the spinner
+	  zIndex: 2e9, // The z-index (defaults to 2000000000)
+	  top: 'auto', // Top position relative to parent in px
+	  left: 'auto' // Left position relative to parent in px
+	};
+	var target = document.getElementById(target);
+	var spinner = new Spinner(opts).spin(target);
+	
+}
+
+function stop_spinner(target){
+	
+	jQuery('#'+target).stop().find('.spinner').remove();
+	
+}
+
+function check_checkout(){
+	
+	jQuery('#checkout_progress li a').each(function(){
+		
+		if(jQuery(this).find('i').hasClass('icon-remove')){
+			
+			var checkout_ok = false;
+		}else{
+			
+			var checkout_ok = true;
+			
+		}
+
+		if(checkout_ok){
+			
+			jQuery('#checkout_now_button').removeClass('disabled');
+			
+		}else{
+			
+			jQuery('#checkout_now_button').addClass('disabled');
+			
+		}
+		
+	});
+	
+}
+
+var fooXHR, fooCounter=0;
+
+function update_cart(){
+
+	disable_cart_stuff();
+	
+	if (fooXHR) fooXHR.abort();
+	
+	var token = ++fooCounter;
+
+	var items = {};
+	
+	var title = '';
+
+	simpleCart.each(function(item){ 
+						
+		items[item.get('name')] = {
+			"quantity": item.quantity(), 
+			"price": simpleCart.toCurrency( item.price()),
+			"total": simpleCart.toCurrency( item.total()),
+			"id": item.get('baseid')
+		};
+					
+		title += item.get('name') + '(' + item.quantity() + ')' + ' ';
+	
+	});
+
+	var data = {
+		action: 'wm_update_order',
+		products: items,
+		title: title,
+		status: 1,
+		total: simpleCart.toCurrency( simpleCart.grandTotal() ),
+		wordmerce_nonce : base_options.wordmerce_nonce,
+		basket_id: base_options.basket_id,
+		xhrFields: {
+			withCredentials: true
+		}
+		
+	};
+	
+	//if(title != ''){
+	
+		fooXHR = jQuery.post(base_options.aja_url, data, function(response) {
+			
+				console.log(response);
+		
+			if(response == 'refresh'){
+				
+				window.location = window.location;
+				
+			}else if(response.search("over_stock") >= 0){
+			
+				var n = response.split('||');
+								
+				var remove_this = simpleCart.find( n[1] );
+				
+				remove_this.remove();
+				
+				show_error('There is not enough stock to add that to your basket. Please refresh the page and try again.');
+				
+			}
+			
+			enable_cart_stuff();
+		});
+	
+	//}
+	
+}
+
+function disable_cart_stuff(){
+	
+	jQuery('.simpleCart_decrement, .simpleCart_increment, .simpleCart_empty, .item_add').hide();
+	
+}
+
+function enable_cart_stuff(){
+	
+	jQuery('.simpleCart_decrement, .simpleCart_increment, .simpleCart_empty, .item_add').show();
+	
+}
+
+function isNumber(value) {
+    if ((undefined === value) || (null === value)) {
+        return false;
+    }
+    if (typeof value == 'number') {
+        return true;
+    }
+    return !isNaN(value - 0);
 }

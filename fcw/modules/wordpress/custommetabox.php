@@ -18,6 +18,20 @@ function my_acf_settings( $options ){
 
 }
 
+if( function_exists('register_field')){
+		
+	register_field('acf_image_picker', dirname(__FILE__) . '/custom_fields/image-picker.php');
+		
+	register_field('acf_disabled_text', dirname(__FILE__) . '/custom_fields/disabled-text.php');
+	
+	register_field('acf_paragraph', dirname(__FILE__) . '/custom_fields/paragraph.php');
+	
+	register_field('acf_function', dirname(__FILE__) . '/custom_fields/function.php');
+	
+	register_field('acf_hidden', dirname(__FILE__) . '/custom_fields/hidden.php');
+		
+}
+
 $prefix = '_fcw_';
 
 class custommetabox{
@@ -35,16 +49,6 @@ class custommetabox{
 	function __construct($args){
 	
 		$this->args = $args;
-				
-		if( function_exists('register_field')){
-				
-			register_field('acf_image_picker', dirname(__File__) . '/custom_fields/image-picker.php');
-				
-			register_field('acf_disabled_text', dirname(__File__) . '/custom_fields/disabled-text.php');
-			
-			register_field('acf_paragraph', dirname(__File__) . '/custom_fields/paragraph.php');
-				
-		}
 		
 		$this->add();
 		
