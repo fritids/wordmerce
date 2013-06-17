@@ -1,4 +1,4 @@
-jQuery(window).load(function(){
+jQuery(document).ready(function(){
   jQuery('#wm_carousel').flexslider({
     animation: "slide",
     controlNav: false,

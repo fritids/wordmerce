@@ -1,5 +1,27 @@
 jQuery(document).ready(function(){
 
+	var isClosed = true;
+	jQuery('a.cart').click(function(){
+	if(isClosed)
+	{
+		jQuery(this).addClass("active");
+		jQuery(this).removeClass("hover");
+		jQuery('form#myForm').slideDown('slow');
+		isClosed = false;
+	}
+	else
+	{
+		jQuery(this).removeClass("active");
+		jQuery('form#myForm').slideUp('slow');
+		isClosed = true;
+	}
+	});
+	
+	
+	jQuery(".pane .delete").click(function(){
+		jQuery(this).parents(".pane").animate({ opacity: 'hide' }, "slow");
+	});
+
 	simpleCart({
 	    checkout: { 
 	        type: "SendForm" , 
@@ -7,7 +29,16 @@ jQuery(document).ready(function(){
 	    },
 	    currency: "GBP",
 	    cartStyle: "table",
-	    shippingFlatRate: 0
+	    shippingFlatRate: 0,
+	    cartColumns: [
+	        { attr: "name" , label: "Name" } ,
+	        { attr: "price" , label: "Price", view: 'currency' } ,
+	        { view: "decrement" , label: false , text: "-" } ,
+	        { attr: "quantity" , label: "Qty" } ,
+	        { view: "increment" , label: false , text: "+" } ,
+	        { attr: "total" , label: "SubTotal", view: 'currency' } ,
+	        { view: "remove" , text: "Remove" , label: false }
+	    ]
 	});
 	
 	simpleCart.bind( "afterAdd" , function( item ){
@@ -43,14 +74,22 @@ jQuery(document).ready(function(){
 		});
 		
 		jQuery('select.add_to_product').each(function () {
-
+						
+			if(this.options[this.selectedIndex].getAttribute("data-price") != ''){
+				
 				var newprice = parseInt(item.get('price')) + parseInt(this.options[this.selectedIndex].getAttribute("data-price"));
 
 				item.price(newprice);
 				
+			}
+			
+			if(this.options[this.selectedIndex].getAttribute("data-name") != ''){
+				
 				var newname = item.get('name') + ' + ' + this.options[this.selectedIndex].getAttribute("data-name");
 			
-				item.set('name', newname);
+				item.set('name', newname); console.log(newname);
+				
+			}
 						
 		});
 		

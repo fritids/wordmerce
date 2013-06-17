@@ -66,80 +66,83 @@ class physical extends base_product{
 	
 	function before_content(){
 	
+		$show_breadcrumbs = get_field('show_breadcrumb', 'options');
+	
 		global $wp_query;
 		
 		//echo '<pre>'; print_r($wp_query);
 		
 		$return = '<div class="login_alert alert alert-error hide"><button type="button" class="close" data-dismiss="alert">&times;</button><span id="error_message"></span></div>';
 		
-		$return .= '<span class="simpleCart_quantity"></span> items - <span class="simpleCart_total"></span>
-<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cart.'" class="">View</a>';
+		if($show_breadcrumbs){
 		
-		$return .= '<ul id="wm_breadcrumbs" class="breadcrumb">';
-		
-			$return .= '<li><a href="'. get_bloginfo('url') .'/'. $this->slug .'">'. $this->home_name .'</a> <span class="divider">/</span></li>';
+			$return .= '<ul id="wm_breadcrumbs" class="breadcrumb">';
 			
-			if(isset($wp_query->query_vars['type'])){
-			
-				switch($wp_query->query_vars['type']){
-			
-					case $this->cats:
+				$return .= '<li><a href="'. get_bloginfo('url') .'/'. $this->slug .'">'. $this->home_name .'</a> <span class="divider">/</span></li>';
 				
-						if($wp_query->query_vars['item'] != ''){
-								
-							$return .= '<li><a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cats.'/'.$wp_query->query_vars['shop_page'].'/'.$wp_query->query_vars['item'].'">'. $wp_query->query_vars['item'] .'</a> <span class="divider">/</span></li>';
-							
-						}else{
-		
-							
-						
-						}
-					
-					break;
-					
-					case $this->item:
-					
-						if(isset($wp_query->query_vars['item'])){
+				if(isset($wp_query->query_vars['type'])){
+				
+					switch($wp_query->query_vars['type']){
+				
+						case $this->cats:
 					
 							if($wp_query->query_vars['item'] != ''){
-						
+									
 								$return .= '<li><a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cats.'/'.$wp_query->query_vars['shop_page'].'/'.$wp_query->query_vars['item'].'">'. $wp_query->query_vars['item'] .'</a> <span class="divider">/</span></li>';
-							
+								
 							}else{
-						
-								$return .= '<li><a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->item.'/'.$wp_query->query_vars['shop_page'].'">'. $wp_query->query_vars['shop_page'] .'</a> <span class="divider">/</span></li>';
+			
+								
 							
 							}
 						
-						}
+						break;
+						
+						case $this->item:
+						
+							if(isset($wp_query->query_vars['item'])){
+						
+								if($wp_query->query_vars['item'] != ''){
+							
+									$return .= '<li><a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cats.'/'.$wp_query->query_vars['shop_page'].'/'.$wp_query->query_vars['item'].'">'. $wp_query->query_vars['item'] .'</a> <span class="divider">/</span></li>';
+								
+								}else{
+							
+									$return .= '<li><a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->item.'/'.$wp_query->query_vars['shop_page'].'">'. $wp_query->query_vars['shop_page'] .'</a> <span class="divider">/</span></li>';
+								
+								}
+							
+							}
+						
+						break;
+						
+						case $this->confirm:
+						
+						
+						break;
+						
+						case $this->return:
+						
+						
+						break;
+						
+						case $this->account:
+						
+						
+						break;
+						
+						default:
+						
+						
+						break;
 					
-					break;
+					}
 					
-					case $this->confirm:
-					
-					
-					break;
-					
-					case $this->return:
-					
-					
-					break;
-					
-					case $this->account:
-					
-					
-					break;
-					
-					default:
-					
-					
-					break;
-				
 				}
-				
-			}
-					
-		$return .= '</ul>'; //#wm_breadcrumbs
+						
+			$return .= '</ul>'; //#wm_breadcrumbs
+		
+		}
 		
 		echo $return;
 		

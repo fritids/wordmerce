@@ -387,6 +387,15 @@ class wordmerce{
 					'message' => 'Yes'
 				),
 				array (
+					'key' => 'show_breadcrumb',
+					'label' => 'Breadcrumbs',
+					'name' => 'show_breadcrumb',
+					'type' => 'true_false',
+					'instructions' => 'Show the breadcrumbs bar at the top of every page?',
+					'default_value' => '',
+					'message' => 'Yes'
+				),
+				array (
 					'key' => 'main_image_width',
 					'label' => 'Product main image width',
 					'name' => 'main_image_width',

@@ -66,6 +66,8 @@ class base_product{
 		
 		add_filter('wm_image_src', array(&$this, 'wm_image_src'), 10, 2);
 		
+		add_action('wordmerce/before_content', array(&$this, 'the_basket'));
+		
 		$i = 0; 
 		
 		while($i < $this->product_types_no){
@@ -700,6 +702,33 @@ class base_product{
 			return $image;
 			
 		}
+		
+	}
+	
+	function the_basket(){
+		
+		$return = '<div id="block">
+			<div class="top">
+				<a href="#" class="cart">Shopping cart</a>
+				<ul class="path">
+					<li><a href="#" class="first"><span class="simpleCart_quantity"></span> items</a></li>
+					<li><a href="#" class="simpleCart_total"></a></li>
+					
+				</ul>
+			</div>
+			<form id="myForm" action="">
+			<ul class="all simpleCart_items">
+			</ul>
+			<div class="bottom">
+				<p class="btnn">
+				<span class="total">Total: </span><span class="sum simpleCart_total"></span>
+				<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cart.'">Check out >></a>
+				</p>
+			</div>
+			</form>
+		</div>';
+		
+		echo $return;
 		
 	}
 
