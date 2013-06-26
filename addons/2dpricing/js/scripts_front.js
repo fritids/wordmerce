@@ -26,7 +26,6 @@ jQuery(document).ready(function(){
 				if(response != '0'){
 					jQuery('.updated_price span').html('&pound;'+response);
 					jQuery('.item_add').removeAttr('disabled');
-					jQuery('.item_name.hide')
 					jQuery('.item_name.hide .name_text_addon').text(' ' + jQuery('#wm_width').val() + ' x ' + jQuery('#wm_height').val());
 				}else{
 					jQuery('.updated_price span').html('Item not available in this size');

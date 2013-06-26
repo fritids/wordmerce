@@ -4,7 +4,7 @@
 
 class base_product{
 
-	protected $home_page, $slug, $cats, $confirm, $return, $register, $email_replace_tags, $product_types_no, $post_types, $all, $item, $checkout, $cart;
+	public $home_page, $slug, $cats, $confirm, $return, $register, $email_replace_tags, $product_types_no, $post_types, $all, $item, $checkout, $cart;
 
 	public function base_product(){
 		

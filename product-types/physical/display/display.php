@@ -156,80 +156,82 @@ class physical extends base_product{
 			
 		$args = array( 'numberposts' => -1, 'post_type' => $type, $tax => $cat);
 		
-		$return = '';
+		$return = '<div id="wm_products_container">';
 		
-		$cards = get_posts( $args );
-		
-		if($cards){
-		
-			foreach( $cards as $post ) :	setup_postdata($post);
-										
-				$term_list = wp_get_object_terms($post->ID, $wordmerce->taxonomies, array("fields" => "all"));
-
-				$price = apply_filters('wm_archive_price', get_field('price', $post->ID), $post->ID);
-				
-				$class = "";
-				
-				if(!is_wp_error($term_list)){
-				
-					foreach($term_list as $term){
-						
-						$class .= $term->slug." ";
-						
-					}
-				
-				}
-				
-				$images = apply_filters('wm_images', get_field('images', $post->ID) , $post->ID); 
-				
-				$image_attributes = apply_filters('wm_image_src', wp_get_attachment_image_src( $images[0], 'product_thumb' ), $post->ID); 
-				
-				$return .= '<div class="item_container">';
-				
-				$return .= apply_filters('wm_inside_item_container', '');
-	 
-					$return .= '<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->item.'/'.$post->post_name.'" id="'.$post->post_name.'">
-						<img src="'.$image_attributes[0].'" width="'.$image_attributes[1].'" height="'.$image_attributes[2].'" class="'.$class .' design" alt="'.$post->post_title.'">';
+			$cards = get_posts( $args );
+			
+			if($cards){
+			
+				foreach( $cards as $post ) :	setup_postdata($post);
+											
+					$term_list = wp_get_object_terms($post->ID, $wordmerce->taxonomies, array("fields" => "all"));
+	
+					$price = apply_filters('wm_archive_price', get_field('price', $post->ID), $post->ID);
 					
-						$return .= '<h4 class="item_title">'.$post->post_title.'</h4>';
+					$class = "";
 					
-						$return .= ($price ? '<p class="item_price">&pound;'.$price.'</p>' : '');
-						
-					$return .= '</a>';
-						
-					if(count($term_list) > 0 && !is_wp_error($term_list)){
+					if(!is_wp_error($term_list)){
 					
-						$return .= '<p class="terms">In: ';
-						
-						$ti = 0;
-													
-						foreach ($term_list as $term){
-					
-							if($ti == 0){
-								$start = '';
-							}else{
-								$start = ', ';
-							}
-
-							$return .= $start . '<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cats.'/'.$term->taxonomy.'/'.$term->slug.'">'.$term->name.'</a>';
+						foreach($term_list as $term){
 							
-							$ti++;
-					
+							$class .= $term->slug." ";
+							
 						}
-						
-						$return .= '</p>';
 					
 					}
-				
-				$return .= '</div>';
+					
+					$images = apply_filters('wm_images', get_field('images', $post->ID) , $post->ID); 
+					
+					$image_attributes = apply_filters('wm_image_src', wp_get_attachment_image_src( $images[0], 'product_thumb' ), $post->ID); 
+					
+					$return .= '<div class="item_container">';
+					
+					$return .= apply_filters('wm_inside_item_container', '');
+		 
+						$return .= '<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->item.'/'.$post->post_name.'" id="'.$post->post_name.'">
+							<img src="'.$image_attributes[0].'" width="'.$image_attributes[1].'" height="'.$image_attributes[2].'" class="'.$class .' design" alt="'.$post->post_title.'">';
+						
+							$return .= '<h4 class="item_title">'.$post->post_title.'</h4>';
+						
+							$return .= ($price ? '<p class="item_price">&pound;'.$price.'</p>' : '');
 							
-			endforeach; 
+						$return .= '</a>';
+							
+						if(count($term_list) > 0 && !is_wp_error($term_list)){
+						
+							$return .= '<p class="terms">In: ';
+							
+							$ti = 0;
+														
+							foreach ($term_list as $term){
+						
+								if($ti == 0){
+									$start = '';
+								}else{
+									$start = ', ';
+								}
+	
+								$return .= $start . '<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cats.'/'.$term->taxonomy.'/'.$term->slug.'">'.$term->name.'</a>';
+								
+								$ti++;
+						
+							}
+							
+							$return .= '</p>';
+						
+						}
+					
+					$return .= '</div>';
+								
+				endforeach; 
+			
+			}else{
+				
+				$return .= apply_filters('wm_nothing_found', '<p>Sorry, but there are no products here. How about going <a href="'.get_bloginfo('url').'/'.$this->slug.'">back to the shop?</a></p>');
+				
+			}
 		
-		}else{
-			
-			$return .= apply_filters('wm_nothing_found', '<p>Sorry, but there are no products here. How about going <a href="'.get_bloginfo('url').'/'.$this->slug.'">back to the shop?</a></p>');
-			
-		}
+		$return .= '</div>';
 		
 		echo $return;
 		
@@ -332,7 +334,7 @@ class physical extends base_product{
 
 						if( $stock > 0){
 				
-							$return .= '<h2 class="item_price updated_price">&pound;<span class="item_price">'. apply_filters('wm_product_price', get_field('price', $product->ID), $product->ID) .'</span></h2><br>';
+							$return .= '<h2 class="item_price"><span class="item_price">'. apply_filters('wm_product_price', get_field('price', $product->ID), $product->ID) .'</span></h2><br>';
 							
 							$return .= apply_filters('wm_after_buy', '', $product->ID);
 							

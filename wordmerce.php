@@ -1039,7 +1039,7 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 		);
 		
 		$meta_boxes = apply_filters('wm_fields', $meta_boxes);
-		
+
 		$metaboxes = new custommetabox($meta_boxes);
 		
 	}
@@ -1435,15 +1435,67 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 					$categories = new customtaxonomy($args);
 					
 					$ii++;
+					
+					$tax_slug = str_replace(" ", "_", strtolower($cat_name));
+					
+					$tax_meta_boxes[$tax_slug] = array (
+						'id' => $tax_slug.'_tax_extras',
+						'title' => 'Extra Details',
+						'options' => array (
+							'position' => 'normal',
+							'layout' => 'default',
+							'hide_on_screen' => 
+							array (
+								'the_content',
+								'excerpt',
+								'custom_fields',
+								'discussion',
+								'comments',
+								'revisions',
+								'slug',
+								'author',
+								'format',
+								'featured_image',
+								'categories',
+								'tags',
+								'send-trackbacks'
+							)
+						),
+						'location' => array (
+							'rules' => 
+							array (
+								array (
+									'param' => 'ef_taxonomy',
+									'operator' => '==',
+									'value' => $tax_slug
+								)
+							),
+							'allorany' => 'all',
+						),
+						'fields' => array(
+							array(
+								'key' => 'tax_image',
+								'label' => '',
+								'name' => 'tax_image',
+								'type' => 'image',
+								'instructions' => '',
+								'id' => 'tax_image',
+								'class' => 'tax_image'
+							),
+						)
+					);
 				
 				}
 			
 			}
 			
 			$i++;
-
 		
 		}
+		
+		$tax_meta_boxes = apply_filters('wm_fields', $tax_meta_boxes);
+
+		$tax_metaboxes = new custommetabox($tax_meta_boxes);
 		
 		if(isset($_GET['post'])){
 		

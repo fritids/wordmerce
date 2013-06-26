@@ -57,6 +57,7 @@ p.item_price{
 
 .simpleCart_items table{
 	border:1px solid #ccc;
+	margin: 0;
 }
 .simpleCart_items th{
 	color:#333;
@@ -73,7 +74,7 @@ p.item_price{
 	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f7f7f7', endColorstr='#ededed',GradientType=0 );
 }
 .simpleCart_items td{
-	padding:10px 30px;
+	padding:10px 16px;
 	vertical-align:middle;
 	border-bottom:1px solid #ccc;
 	
@@ -102,21 +103,20 @@ small{
 	margin-left: 10px;
 }
 
-#block {width:260px;}
+#block {width:260px; position: fixed; top: 10px; left: 10px; z-index: 9999999;}
 #block .top {background-color:#474747;padding:2px 3px 3px 2px;position:relative;overflow:hidden;}
 #block .top .cart {background:url(img/a.cart.png) no-repeat 0 0;text-indent:-9999px;width:136px;height:32px;float:left;}
 #block .top .cart:hover {background:url(img/a.cart.png) no-repeat 0px -32px;width:136px;height:32px;}
 #block .top .cart:active {background:url(img/a.cart.png) no-repeat 0px -64px;width:136px;height:32px;}
 #block .top .active {background:url(img/a.cart.png) no-repeat 0px -64px;}
 #block .top .active:hover {background:url(img/a.cart.png) no-repeat 0px -64px;}
-#block .top .path {background-color:#797979;padding-left:2px;position:relative;overflow:hidden;
-	border-top:1px solid #353535;border-bottom:1px solid #989898;border-right:1px solid #626262;}
+#block .top .path {background-color:#797979;padding-left:2px;position:relative;overflow:hidden;border-top:1px solid #353535;border-bottom:1px solid #989898;border-right:1px solid #626262; margin:0;}
 #block .top .path li {float:left;overflow:hidden;}
 #block .top .path li a {color:#fff;font-size:11px;line-height:30px;padding:0 7px 0 8px;}
 #block .top .path li a.first {background:url(img/ul.path-li-a.first.gif) no-repeat right;}
 
 #block form {width:260px;padding-top:0px;margin-top:0px;display:none;position:absolute;z-index: 99999;}
-#block form .all {background-color:#fff;padding-top:9px;margin-top:1px;border-left:1px solid #939393;border-right:1px solid #939393;overflow:hidden;}
+#block form .all {background-color:#fff;padding-top:9px;margin-top:1px;border-left:1px solid #939393;border-right:1px solid #939393;overflow:hidden; margin: 0;}
 #block form .all li {background:url(img/ul.all-li.png) repeat-x bottom;padding:0 0 9px 0;margin:0 13px 9px 13px;overflow:hidden;}
 #block form .all li.last {background:none;padding-bottom:13px;margin-bottom:0;}
 #block form .all li img{float:left;}
@@ -134,7 +134,7 @@ small{
 	text-align:right;width:35px;height:16px;padding-right:2px;margin-left:6px;border:none;}
 #block form .all li .description .position a img {margin-top:1px;float:right;}
 #block form .bottom {padding-bottom:2px;position:relative;}
-#block form .bottom .btnn {background-color:#393939;height:31px;padding:13px 8px 0 6px;border-left:1px solid #939393;border-right:1px solid #939393;margin-bottom: 0px;}
+#block form .bottom .btnn {background-color:#393939;height:31px;padding:13px 8px 20px 6px;border-left:1px solid #939393;border-right:1px solid #939393;margin-bottom: 0px;}
 #block form .bottom .btnn span{color:#e1ecf1;font-size:11px;font-weight:bold;height:21px;position:relative;}
 #block form .bottom .btnn span.total {margin-right:7px;top:-5px;}
 #block form .bottom .btnn span.currency {font-size:9px;font-weight:normal;margin-right:2px;top:-10px;}
