@@ -274,25 +274,29 @@ class physical extends base_product{
 						
 					</div>'; //#slider
 					
-					$return .= '<div id="wm_carousel" class="flexslider">
-						
-						<ul class="slides">';
-						
-							foreach($images as $image){
+					if(count($images) > 1){
+					
+						$return .= '<div id="wm_carousel" class="flexslider">
 							
-								$image_attributes = apply_filters('wm_image_src', wp_get_attachment_image_src( $image, 'product_thumb' ), $product->ID); 
-								
-								$return .= '<li>
-								
-									<img src="'.$image_attributes[0].'" />
-								
-								</li>';
+							<ul class="slides">';
 							
-							}
-						
-						$return .= '</ul>
-						
-					</div>'; //#carousel
+								foreach($images as $image){
+								
+									$image_attributes = apply_filters('wm_image_src', wp_get_attachment_image_src( $image, 'product_thumb' ), $product->ID); 
+									
+									$return .= '<li>
+									
+										<img src="'.$image_attributes[0].'" />
+									
+									</li>';
+								
+								}
+							
+							$return .= '</ul>
+							
+						</div>'; //#carousel
+					
+					}
 								
 				$return .= '</div>'; //#product_image_container
 			
@@ -334,7 +338,7 @@ class physical extends base_product{
 
 						if( $stock > 0){
 				
-							$return .= '<h2 class="item_price"><span class="item_price">'. apply_filters('wm_product_price', get_field('price', $product->ID), $product->ID) .'</span></h2><br>';
+							$return .= '<h2 class=""><span class="item_price">'. apply_filters('wm_product_price', '&pound;'.get_field('price', $product->ID), $product->ID) .'</span></h2><br>';
 							
 							$return .= apply_filters('wm_after_buy', '', $product->ID);
 							

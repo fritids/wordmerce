@@ -15,6 +15,8 @@ class orders{
 		add_action('wp_ajax_wm_update_order', array(&$this, 'update_order' ));
 
 		add_action('wp_ajax_wm_nopriv_update_order', array(&$this, 'update_order' ));
+		
+		add_action('wp_ajax_send_purchase_receipt', array(&$this, 'send_purchase_receipt' ));
 	
 	}
 	
@@ -112,7 +114,7 @@ echo $current_stock.' - '.$quantity;
 			
 		}
 		
-		if($flag){
+		if(isset($flag) && $flag){
 			
 			echo 'over_stock||'.$flag;
 			
@@ -376,7 +378,24 @@ echo $current_stock.' - '.$quantity;
 		
 	}
 	
-	function send_purchase_receipt($id){
+	function send_purchase_receipt($id=''){
+	
+		$manual = false;
+	
+		if($id == ''){
+		
+			if(isset($_POST['order_id'])){
+		
+				$id = $_POST['order_id'];
+				
+				$manual = true;
+			
+			}else{
+				
+				return 'No ID sent...';
+				
+			}
+		}
 	
 		$header_image = wp_get_attachment_image_src( get_field('receipt_header_image', 'option'), 'full' );
 	
@@ -413,7 +432,7 @@ echo $current_stock.' - '.$quantity;
 		
 		$emails_sent = is_array($e_s) ? $e_s : array();
 		
-		if(count($emails_sent) == 0){
+		if(count($emails_sent) == 0 || $manual){
 		
 			if(wp_mail( $email_address, get_field('receipt_title', 'option'), $email, $headers )){
 							
@@ -434,6 +453,12 @@ echo $current_stock.' - '.$quantity;
 			$emails_sent = array_reverse($emails_sent);
 			
 			echo 'Your email receipt was last sent to ' . $email_address . ' on ' . $emails_sent[0];
+			
+		}
+		
+		if($manual){
+		
+			die();
 			
 		}
 		

@@ -38,6 +38,10 @@ class base_product{
 		
 		$this->item = 'item';
 		
+		define('WM_SLUG', $this->slug);
+		
+		define('WM_CART', $this->cart);
+		
 		$this->product_types_no = get_option('options_product_types');
 		
 		$this->post_types = array();
@@ -51,6 +55,8 @@ class base_product{
 		));
 				
 		add_action('wp_head', array(&$this, 'enqueue_base_scripts'));
+		
+		add_action('admin_head', array(&$this, 'enqueue_admin_scripts'));
 		
 		add_filter('query_vars', array($this,'add_query_vars'));
 		
@@ -322,8 +328,24 @@ class base_product{
 		) );
 				
 	}
+	
+	function enqueue_admin_scripts(){
+		
+		wp_enqueue_script( 'base-scripts', plugins_url( 'js/admin_scripts.js', __FILE__ ) );
+		
+	}
 		
 	function confirm_page($order_id){
+		
+		if(isset($_COOKIE["WM_BASKET"]) && $_COOKIE["WM_BASKET"] == $order_id){
+
+			echo '<script>jQuery(document).ready(function(){ 
+			var remove = jQuery.removeCookie(\'WM_BASKET\', { path: \'/\' }); 
+			//console.log(remove + \' \' + jQuery.cookie(\'WM_BASKET\'));
+			window.location = window.location; 
+			});</script>';
+			
+		}
 		
 		$customer = new customers;
 		
@@ -705,31 +727,51 @@ class base_product{
 		
 	}
 	
-	function the_basket(){
-		
-		$return = '<div id="block">
-			<div class="top">
-				<a href="#" class="cart">Shopping cart</a>
-				<ul class="path">
-					<li><a href="#" class="first"><span class="simpleCart_quantity"></span> items</a></li>
-					<li><a href="#" class="simpleCart_total"></a></li>
-					
-				</ul>
-			</div>
-			<form id="myForm" action="">
-			<ul class="all simpleCart_items">
-			</ul>
-			<div class="bottom">
-				<p class="btnn">
-				<span class="total">Total: </span><span class="sum simpleCart_total"></span>
-				<a href="'.get_bloginfo('url').'/'.$this->slug.'/'.$this->cart.'">Check out >></a>
-				</p>
-			</div>
-			</form>
-		</div>';
-		
-		echo $return;
+	function the_basket($manually = false){
+	
+		the_basket(false);
 		
 	}
 
+}
+
+function the_basket($manually = true){
+	
+	$basket_class = get_field('basket_placement', 'options'); 
+	
+	if($basket_class == ''){ 
+		
+		$basket_class = 'float-top-left';
+		
+	}
+	
+	if(!$manually && $basket_class == 'manual'){
+		
+		return false;
+		
+	}
+	
+	$return = '<div id="block" class="'.$basket_class.'">
+		<div class="top">
+			<a href="#" class="cart">Shopping cart</a>
+			<ul class="path">
+				<li><a href="#" class="first"><span class="simpleCart_quantity"></span> items</a></li>
+				<li><a href="#" class="simpleCart_total"></a></li>
+				
+			</ul>
+		</div>
+		<form id="myForm" action="">
+		<ul class="all simpleCart_items">
+		</ul>
+		<div class="bottom">
+			<p class="btnn">
+			<span class="total">Total: </span><span class="sum simpleCart_total"></span>
+			<a href="'.get_bloginfo('url').'/'.WM_SLUG.'/'.WM_CART.'">Check out >></a>
+			</p>
+		</div>
+		</form>
+	</div>';
+	
+	echo $return;
+	
 }

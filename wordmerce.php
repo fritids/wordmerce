@@ -28,6 +28,8 @@ define('currency_symbol', "&pound;");
 
 define('weight_unit', "g");
 
+define('MANUAL_REMOVE', false);
+
 if (!defined("TPC_location_data_table")) { define("TPC_location_data_table", "{$wp_table_prefix}jm_location_data"); }
 
 update_post_meta('129', 'sales', '21');
@@ -108,9 +110,9 @@ class wordmerce{
 		
 		add_action( 'admin_menu', array($this, 'remove_add_new_pages'), 999 );
 		
-		add_filter( 'bulk_actions-' . 'edit-orders', '__return_empty_array' );  
+		if(!MANUAL_REMOVE){ add_filter( 'bulk_actions-' . 'edit-orders', '__return_empty_array' ); };
 		
-		add_filter( 'bulk_actions-' . 'edit-customers', '__return_empty_array' );  
+		if(!MANUAL_REMOVE){ add_filter( 'bulk_actions-' . 'edit-customers', '__return_empty_array' ); };
 		
 		add_action( 'restrict_manage_posts', array($this, 'custom_sorters') );
 		
@@ -447,6 +449,20 @@ class wordmerce{
 						'Spacelab' => 'Spacelab',
 						'Superhero' => 'Superhero',
 						'United' => 'United'
+					)
+				),
+				array (
+					'key' => 'basket_placement',
+					'label' => 'Type of product',
+					'name' => 'basket_placement',
+					'type' => 'radio',
+					'instructions' => 'Choose how to display the basket',
+					'choices' => array(
+						'float-top-left' => 'Float Top Left',
+						'float-top-right' => 'Float Top Right',
+						'float-bottom-left' => 'Float Bottom Left',
+						'float-bottom-right' => 'Float Bottom Right',
+						'manual' => 'Manually insert code to template file<br>Insert the following code in your theme file where you would like the basket to render<br><code>'.htmlentities('<?php the_basket(); ?>').'</code>',
 					)
 				)
 			)
@@ -1038,6 +1054,106 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			)
 		);
 		
+		$meta_boxes[] = array (
+			'id' => 'order_customer_payment_details',
+			'title' => 'Payment Details',
+			'options' => array (
+				'position' => 'side',
+				'layout' => 'default',
+				'hide_on_screen' => 
+				array (
+					'the_content',
+					'excerpt',
+					'custom_fields',
+					'discussion',
+					'comments',
+					'revisions',
+					'slug',
+					'author',
+					'format',
+					'featured_image',
+					'categories',
+					'tags',
+					'send-trackbacks'
+				)
+			),
+			'location' => array (
+				'rules' => 
+				array (
+					array (
+						'param' => 'post_type',
+						'operator' => '==',
+						'value' => 'orders',
+					),
+				),
+				'allorany' => 'any',
+			),
+			'fields' => array(
+				array(
+					'key' => '',
+					'label' => '',
+					'name' => 'order_customer_payment_details',
+					'type' => 'paragraph',
+					'instructions' => '',
+					'id' => 'order_customer_payment_details',
+					'class' => 'order_customer_payment_details',
+					'value' => $this->order_customer_payment_details()
+				),
+			)
+		);
+	
+		if(SHIPPING){
+		
+			$meta_boxes[] = array (
+				'id' => 'order_customer_deliver_to',
+				'title' => 'Deliver To',
+				'options' => array (
+					'position' => 'side',
+					'layout' => 'default',
+					'hide_on_screen' => 
+					array (
+						'the_content',
+						'excerpt',
+						'custom_fields',
+						'discussion',
+						'comments',
+						'revisions',
+						'slug',
+						'author',
+						'format',
+						'featured_image',
+						'categories',
+						'tags',
+						'send-trackbacks'
+					)
+				),
+				'location' => array (
+					'rules' => 
+					array (
+						array (
+							'param' => 'post_type',
+							'operator' => '==',
+							'value' => 'orders',
+						),
+					),
+					'allorany' => 'any',
+				),
+				'fields' => array(
+					array(
+						'key' => '',
+						'label' => '',
+						'name' => 'order_customer_deliver_to',
+						'type' => 'paragraph',
+						'instructions' => '',
+						'id' => 'order_customer_deliver_to',
+						'class' => 'order_customer_deliver_to',
+						'value' => $this->order_customer_deliver_to()
+					),
+				)
+			);
+		
+		}
+		
 		$meta_boxes = apply_filters('wm_fields', $meta_boxes);
 
 		$metaboxes = new custommetabox($meta_boxes);
@@ -1060,6 +1176,8 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 			$status = $order->get_order_status($id);
 			
+			$status_no = $order->get_order_status($id, true);
+						
 			$status_class = $order->get_order_status_class($id);
 			
 			$gateway = $order->get_data($id, 'gateway');
@@ -1137,33 +1255,132 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 				
 				if(SHIPPING){
 					
-					$return .= '<p><strong>Shipping:</strong> '.$shipping.'</p>';
+					$return .= '<p><strong>Shipping:</strong> &pound;'.$shipping.'</p>';
 					
 				}
 				
 			}
+						
+			if($status_no == 3){
 			
-			if($gateway){
-			
-				$return .= '<p><strong>Gateway:</strong> '.$gateway.'</p>';
-			
-			}
-			
-			if($gateway_transaction_id){
-				
-				$return .= '<p><strong>Gateway Transaction ID:</strong> '.$gateway_transaction_id.'</p>';
-				
-			}
-			
-			if($status == 3){
-			
-				$return .= 'Email receipt was last sent to ' . $email_address . ' on ' . $emails_sent[0];
+				$return .= 'Email receipt was last sent to ' . $email_address . ' on ' . $emails_sent[0] . '<a data-id="'.$id.'" href="#" id="resend_email_button" class="button primary">Resend</a>';
 			
 			}
 			
 			return $return;
 					
 		}
+		
+	}
+	
+	function order_customer_payment_details(){
+	
+		if(isset($_GET['post'])){
+		
+			$post = get_post($_GET['post']);
+			
+			$id = $post->ID;
+			
+			$order = new orders;	
+			
+			$c_id = $order->get_customer_id($id);
+			
+			$customer = new customers;	
+			
+			$gateway = $order->get_data($id, 'gateway');
+						
+			$gateway_transaction_id = $order->get_data($id, 'gateway_transaction_id');
+			
+			$payment_info = $order->get_data($id, 'payment_info');
+			
+			$return = '';
+		
+			if($gateway && $gateway_transaction_id){
+			
+				$return .= '<p><strong>Gateway:</strong> '.$gateway.'</p>';
+				
+				$return .= '<p><strong>Gateway Transaction ID:</strong> '.$gateway_transaction_id.'</p>';
+			
+				$return .= '<p><strong>Payment Details:</strong></p><ul>';
+				
+				foreach($payment_info as $key => $info){
+				
+					if(is_array($info)){
+						
+						$return .= '<li><strong>' . $key . ':</strong> <ul style="text-indent: 20px;">';
+						
+							foreach($info as $sub_key => $sub_info){
+							
+								if(is_array($sub_info)){
+						
+									$return .= '<li><strong>' . $sub_key . ':</strong> <ul style="text-indent: 40px;">';
+									
+										foreach($sub_info as $sub_sub_key => $sub_sub_info){
+											
+											$return .= '<li><strong>' . $sub_sub_key . ':</strong> ' . $sub_sub_info . '</li>';
+											
+										}
+									
+									$return .= '</ul></li>';
+									
+								}else{
+								
+									$return .= '<li><strong>' . $sub_key . ':</strong> ' . $sub_info . '</li>';
+								
+								}
+								
+							}
+						
+						$return .= '</ul></li>';
+						
+					}else{
+					
+						$return .= '<li><strong>' . $key . ':</strong> ' . $info . '</li>';
+					
+					}
+					
+				}
+				
+				$return .= '</ul>';
+			
+			}else{
+				
+				$return .= '<p>No payment made yet...</p>';
+				
+			}
+						
+			return $return;
+			
+		}
+		
+	}
+	
+	function order_customer_deliver_to(){
+		
+		if(isset($_GET['post'])){
+		
+			$post = get_post($_GET['post']);
+			
+			$id = $post->ID;
+			
+			$order = new orders;	
+			
+			$c_id = $order->get_customer_id($id);
+			
+			$customers = new customers;	
+			
+			$return = '<p>'.$customers->get_name($c_id).'</p>
+			<p>'.$customers->get_data($c_id, 'inputAddress1').'</p>
+			<p>'.$customers->get_data($c_id, 'inputAddress2').'</p>
+			<p>'.$customers->get_data($c_id, 'inputTownCity').'</p>
+			<p>'.$customers->get_data($c_id, 'inputRegion').'</p>
+			<p>'.$customers->get_data($c_id, 'inputPostcode').'</p>
+			<p>'.$customers->get_data($c_id, 'inputCountry').'</p>';
+				
+			return $return;
+					
+		}
+
 		
 	}
 	
@@ -1493,10 +1710,14 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 		
 		}
 		
-		$tax_meta_boxes = apply_filters('wm_fields', $tax_meta_boxes);
-
-		$tax_metaboxes = new custommetabox($tax_meta_boxes);
+		if(isset($tax_meta_boxes)){ 
 		
+			$tax_meta_boxes = apply_filters('wm_fields', $tax_meta_boxes);
+
+			$tax_metaboxes = new custommetabox($tax_meta_boxes);
+			
+		};
+					
 		if(isset($_GET['post'])){
 		
 			$post_name = get_post($_GET['post']);
@@ -1542,7 +1763,9 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 		
 		$orders = new customposttype($args);
 		
-		$orders->edit_columns(array('product' => 'Product', 'customer' => 'Customer', 'status' => 'Status', 'date' => 'Date'), array('product' => 'order_product_name', 'customer' => 'customer_column', 'status' => 'order_status'));
+		if(!MANUAL_REMOVE){
+			$orders->edit_columns(array('product' => 'Product', 'customer' => 'Customer', 'status' => 'Status', 'date' => 'Date'), array('product' => 'order_product_name', 'customer' => 'customer_column', 'status' => 'order_status'));
+		}
 		
 		$args = array(
 			'name' => 'Customers',

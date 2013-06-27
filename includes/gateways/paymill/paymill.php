@@ -94,8 +94,12 @@ class paymill{
 		//update_post_meta($product_id, 'sales', $count++);
 		
 		$order->add_data_to_order($_COOKIE['WM_BASKET'], 'payment_id', $transaction['id']);
+		
+		$order->add_data_to_order($_COOKIE['WM_BASKET'], 'gateway_transaction_id', $transaction['id']);
 
 		$order->add_data_to_order($_COOKIE['WM_BASKET'], 'payment_info', $data);
+		
+		$order->add_data_to_order($_COOKIE['WM_BASKET'], 'gateway', 'PayMill');
 					
 		$order_id = $order->update_status($_COOKIE['WM_BASKET'], '3');
 				

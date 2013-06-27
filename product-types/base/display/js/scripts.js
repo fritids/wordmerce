@@ -6,7 +6,14 @@ jQuery(document).ready(function(){
 	{
 		jQuery(this).addClass("active");
 		jQuery(this).removeClass("hover");
-		jQuery('form#myForm').slideDown('slow');
+		jQuery('form#myForm').slideDown('slow', function(){
+			
+			if(jQuery(this).parent().hasClass('float-bottom-left') || jQuery(this).parent().hasClass('float-bottom-right')){
+				jQuery(this).animate({'top': '-'+jQuery('form#myForm').css('height')});
+			}
+			
+		});
+		
 		isClosed = false;
 	}
 	else
@@ -70,7 +77,7 @@ jQuery(document).ready(function(){
 				item.set('name', newname);
 			
 			}
-		
+
 		});
 		
 		jQuery('select.add_to_product').each(function () {
@@ -79,7 +86,7 @@ jQuery(document).ready(function(){
 				
 				var newprice = parseInt(item.get('price')) + parseInt(this.options[this.selectedIndex].getAttribute("data-price"));
 
-				item.price(newprice);
+				item.price(newprice); 
 				
 			}
 			
@@ -590,8 +597,8 @@ function update_cart(){
 		
 	};
 	
-	//if(title != ''){
-	
+	if(title != ''){
+		
 		fooXHR = jQuery.post(base_options.aja_url, data, function(response) {
 			
 				console.log(response);
@@ -615,8 +622,12 @@ function update_cart(){
 			enable_cart_stuff();
 		});
 	
-	//}
-	
+	}else{
+		
+		enable_cart_stuff();
+		
+	}
+		
 }
 
 function disable_cart_stuff(){

@@ -25,10 +25,12 @@ class product_options{
 	}
 	
 	function wm_after_buy($n, $id){
+	
+		$return = '';
 		
 		$options = get_post_meta($id, 'product_options_options', true);
 
-		if($options != ''){
+		if($options != '' && $options != 0){
 		
 /* 			$return = '<h2>Options</h2>'; */
 			

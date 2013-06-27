@@ -103,7 +103,24 @@ small{
 	margin-left: 10px;
 }
 
-#block {width:260px; position: fixed; top: 10px; left: 10px; z-index: 9999999;}
+#block {width:260px; z-index: 9999999;}
+
+#block.float-top-left{
+	position: fixed; top: 10px; left: 10px;
+}
+
+#block.float-top-right{
+	position: fixed; top: 10px; right: 10px;
+}
+
+#block.float-bottom-left{
+	position: fixed; bottom: 10px; left: 10px;
+}
+
+#block.float-bottom-right{
+	position: fixed; bottom: 10px; right: 10px;
+}
+
 #block .top {background-color:#474747;padding:2px 3px 3px 2px;position:relative;overflow:hidden;}
 #block .top .cart {background:url(img/a.cart.png) no-repeat 0 0;text-indent:-9999px;width:136px;height:32px;float:left;}
 #block .top .cart:hover {background:url(img/a.cart.png) no-repeat 0px -32px;width:136px;height:32px;}
