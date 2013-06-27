@@ -94,7 +94,7 @@ jQuery(document).ready(function(){
 				
 				var newname = item.get('name') + ' + ' + this.options[this.selectedIndex].getAttribute("data-name");
 			
-				item.set('name', newname); console.log(newname);
+				item.set('name', newname); 
 				
 			}
 						
@@ -140,6 +140,27 @@ jQuery(document).ready(function(){
 	
 	jQuery(document).on('log_out', function(e){
 	
+		var opts = {
+		  lines: 20, // The number of lines to draw
+		  length: 200, // The length of each line
+		  width: 40, // The line thickness
+		  radius: 3, // The radius of the inner circle
+		  corners: 1, // Corner roundness (0..1)
+		  rotate: 0, // The rotation offset
+		  direction: 1, // 1: clockwise, -1: counterclockwise
+		  color: '#fff', // #rgb or #rrggbb
+		  speed: 1, // Rounds per second
+		  trail: 0, // Afterglow percentage
+		  shadow: true, // Whether to render a shadow
+		  hwaccel: false, // Whether to use hardware acceleration
+		  className: 'spinner', // The CSS class to assign to the spinner
+		  zIndex: 2e9, // The z-index (defaults to 2000000000)
+		  top: '10', // Top position relative to parent in px
+		  left: 'auto' // Left position relative to parent in px
+		};
+
+		show_spinner('body_spin', opts);
+		
 		login_loading();
 	
 		var data = {
@@ -155,6 +176,8 @@ jQuery(document).ready(function(){
 	});
 	
 	jQuery(document).on('log_in', function(e, eventInfo) { 
+	
+		last_function = 'refresh_window';
 					
 		var data = {
 			action: 'WM_log_in',
@@ -226,7 +249,35 @@ jQuery(document).ready(function(){
 	
 	jQuery(document).on('refresh_window', function(e) { 
 	
-		window.location = window.location;
+		var opts = {
+		  lines: 20, // The number of lines to draw
+		  length: 200, // The length of each line
+		  width: 40, // The line thickness
+		  radius: 3, // The radius of the inner circle
+		  corners: 1, // Corner roundness (0..1)
+		  rotate: 0, // The rotation offset
+		  direction: 1, // 1: clockwise, -1: counterclockwise
+		  color: '#fff', // #rgb or #rrggbb
+		  speed: 1, // Rounds per second
+		  trail: 0, // Afterglow percentage
+		  shadow: true, // Whether to render a shadow
+		  hwaccel: false, // Whether to use hardware acceleration
+		  className: 'spinner', // The CSS class to assign to the spinner
+		  zIndex: 2e9, // The z-index (defaults to 2000000000)
+		  top: '10', // Top position relative to parent in px
+		  left: 'auto' // Left position relative to parent in px
+		};
+
+		show_spinner('body_spin', opts);
+		
+		var loc = window.location.href,
+	    index = loc.indexOf('#');
+	
+		if (index > 0) {
+			window.location = loc.substring(0, index);
+		}else{
+			window.location = window.location;
+		}
 	
 	});
 	
@@ -243,6 +294,14 @@ jQuery(document).ready(function(){
 	jQuery('#logout_link').click(function(){
 		
 		jQuery(document).trigger('log_out');
+		
+		return false;
+		
+	});
+	
+	jQuery('.checkout_move').click(function(){
+			
+		jQuery('#checkout_progress li a[data-targets="'+jQuery(this).attr('data-menu-target')+'"]').click();
 		
 		return false;
 		
@@ -353,7 +412,7 @@ jQuery(document).ready(function(){
 		
 		    show_error('Please enter a quantity between 1 and '+max);
 		    
-		    console.log('error');
+		    //console.log('error');
 		
 		}else{
 			
@@ -364,6 +423,8 @@ jQuery(document).ready(function(){
 		return;
 	
 	});
+	
+	check_checkout();
 	
 });
 
@@ -496,28 +557,33 @@ function randomString(len, charSet) {
     return randomString;
 }
 
-function show_spinner(target){
+function show_spinner(target, opts){
 
 	jQuery('#'+target).stop().find('.spinner').remove();
+	
+	if(opts == undefined){
 
-	var opts = {
-	  lines: 10, // The number of lines to draw
-	  length: 8, // The length of each line
-	  width: 2, // The line thickness
-	  radius: 3, // The radius of the inner circle
-	  corners: 1, // Corner roundness (0..1)
-	  rotate: 0, // The rotation offset
-	  direction: 1, // 1: clockwise, -1: counterclockwise
-	  color: '#000', // #rgb or #rrggbb
-	  speed: 1, // Rounds per second
-	  trail: 60, // Afterglow percentage
-	  shadow: false, // Whether to render a shadow
-	  hwaccel: false, // Whether to use hardware acceleration
-	  className: 'spinner', // The CSS class to assign to the spinner
-	  zIndex: 2e9, // The z-index (defaults to 2000000000)
-	  top: 'auto', // Top position relative to parent in px
-	  left: 'auto' // Left position relative to parent in px
-	};
+		var opts = {
+		  lines: 10, // The number of lines to draw
+		  length: 8, // The length of each line
+		  width: 2, // The line thickness
+		  radius: 3, // The radius of the inner circle
+		  corners: 1, // Corner roundness (0..1)
+		  rotate: 0, // The rotation offset
+		  direction: 1, // 1: clockwise, -1: counterclockwise
+		  color: '#000', // #rgb or #rrggbb
+		  speed: 1, // Rounds per second
+		  trail: 60, // Afterglow percentage
+		  shadow: false, // Whether to render a shadow
+		  hwaccel: false, // Whether to use hardware acceleration
+		  className: 'spinner', // The CSS class to assign to the spinner
+		  zIndex: 2e9, // The z-index (defaults to 2000000000)
+		  top: 'auto', // Top position relative to parent in px
+		  left: 'auto' // Left position relative to parent in px
+		};
+	
+	}
+	
 	var target = document.getElementById(target);
 	var spinner = new Spinner(opts).spin(target);
 	
@@ -529,13 +595,37 @@ function stop_spinner(target){
 	
 }
 
+var first_check = true;
+
 function check_checkout(){
+
+	jQuery('#customer_address input[type="text"]').each(function(){
+
+		var shipping_ok = true;
+		
+		if(!jQuery(this).prev().hasClass('icon-ok-sign')){
+			
+			shipping_ok = false; 
+		}
+
+		if(shipping_ok){
+			
+			jQuery('a[data-targets="#checkout_shipping"] i').removeClass('icon-remove').addClass('icon-ok');
+									
+		}else{
+			
+			jQuery('a[data-targets="#checkout_shipping"] i').removeClass('icon-ok').addClass('icon-remove');
+						
+		}
+		
+	});
 	
 	jQuery('#checkout_progress li a').each(function(){
 		
 		if(jQuery(this).find('i').hasClass('icon-remove')){
 			
 			var checkout_ok = false;
+			
 		}else{
 			
 			var checkout_ok = true;
@@ -553,6 +643,18 @@ function check_checkout(){
 		}
 		
 	});
+	
+	if(first_check){
+	
+		var first = jQuery('.checkout_status.icon-remove').first().parent();
+	
+		first.addClass('active');
+	
+		first.click();
+		
+		first_check = false;
+	
+	}
 	
 }
 
@@ -600,9 +702,7 @@ function update_cart(){
 	if(title != ''){
 		
 		fooXHR = jQuery.post(base_options.aja_url, data, function(response) {
-			
-				console.log(response);
-		
+					
 			if(response == 'refresh'){
 				
 				window.location = window.location;

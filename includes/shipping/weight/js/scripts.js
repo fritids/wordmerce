@@ -106,14 +106,14 @@ function calculate_shipping(){
 			  jQuery('.simpleCart_shipping').html(simpleCart.toCurrency(value));
 			  
 			  jQuery('.simpleCart_grandTotal').html(simpleCart.toCurrency(simpleCart.grandTotal()));
-			  
-			  stop_spinner('countries_spin');
 	
 			  }else{
 				  
 				  //show_error('<p>There was a problem calculating your shipping.</p><p>Please ensure you have either logged in or have a country selected in the checkout.</p>');
-				  
+				  				  
 			  }
+			  
+			  stop_spinner('countries_spin');
 	
 	      }
 	    });

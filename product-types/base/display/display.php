@@ -751,7 +751,7 @@ function the_basket($manually = true){
 		
 	}
 	
-	$return = '<div id="block" class="'.$basket_class.'">
+	$return = '<div id="body_spin"></div><div id="block" class="'.$basket_class.'">
 		<div class="top">
 			<a href="#" class="cart">Shopping cart</a>
 			<ul class="path">

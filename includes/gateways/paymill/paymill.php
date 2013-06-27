@@ -57,7 +57,9 @@ class paymill{
 		    <span></span>
 		    <input class="card-expiry-year" data-validate="validateExpiry" type="text" size="4" /></div>
 				
-		</form>';
+		</form>
+		
+		<div id="payment_spin"></div>';
 		
 		return $return;
 		

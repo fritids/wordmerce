@@ -474,7 +474,7 @@ echo $current_stock.' - '.$quantity;
 		  <div class="navbar-inner">
 		    <a class="brand" href="#">Checkout Progress</a>
 		    <ul class="nav">
-		      <li class="active"><a data-targets="#checkout_basket" href="#"><i class="checkout_status icon-ok"></i>Basket</a></li>
+		      <li><a data-targets="#checkout_basket" href="#"><i class="checkout_status icon-ok"></i>Basket</a></li>
 		      <li><a data-targets="#checkout_login" href="#">';
 		      
 		      if($customers->is_logged_in()){
@@ -503,30 +503,44 @@ echo $current_stock.' - '.$quantity;
 				<span id="error_message"></span>
 			</div>';
 		
-			$return .= '<div class="simpleCart_items collapses" id="checkout_basket"></div>';
+			$return .= '<div id="checkout_basket" class="collapses page-header">
+			
+				<div class="page-header">
+				
+					<div class="simpleCart_items"></div>
+				
+				</div>
+					
+				<a href="#" data-menu-target="#checkout_login" class="clearfix pull-right btn btn-large checkout_move"><i class="icon icon-chevron-right"></i> Next</a><div class="clearfix"></div>
+					
+			</div>';
 			
 			$return .= '<div class="page-header collapses" id="checkout_login">';
 			
 				if($is_logged_in){
 					
-					$return .= '<h2>Logged in as '. $customers->get_name($is_logged_in) .'</h2>
-					<a href="#" id="logout_link">Log Out?</a>
+					$return .= '<div class="page-header">
+						<h2>Logged in as '. $customers->get_name($is_logged_in) .'</h2>
+						<a href="#" id="logout_link">Log Out?</a>
+					</div>
 					
 					<input type="hidden" id="user_id" value="'.$is_logged_in.'" />';
 					
 				}else{
 					
-					$return .= '<div class="page-header"><button class="btn" id="checkout_login">Log In or Register</button></div>
+					$return .= '<div class="page-header"><button class="btn btn-info btn-large" id="checkout_login">Log In or Register</button></div>
 					
 					<input type="hidden" id="user_id" value="" />';
 					
 				}
 	
-			$return .= '</div>';
+				$return .= '<a href="#" data-menu-target="#checkout_basket" class="clearfix pull-left btn btn-small checkout_move">Prev <i class="icon icon-chevron-left"></i></a><a href="#" data-menu-target="#'.(SHIPPING ? 'checkout_shipping' : 'checkout_payment').'" class=" pull-right btn btn-large checkout_move"><i class="icon icon-chevron-right"></i> Next</a><div class="clearfix"></div>
+			
+			</div>';
 			
 			if(SHIPPING){
 			
-				$return .= '<div id="checkout_shipping" class="collapses">
+				$return .= '<div id="checkout_shipping" class="collapses page-header">
 					
 					<div class="page-header">
 					
@@ -595,16 +609,24 @@ echo $current_stock.' - '.$quantity;
 						</div>
 						
 					</div>
+					
+					<a href="#" data-menu-target="#checkout_login" class="clearfix pull-left btn btn-small checkout_move">Prev <i class="icon icon-chevron-left"></i></a><a href="#" data-menu-target="#checkout_payment" class=" pull-right btn btn-large checkout_move"><i class="icon icon-chevron-right"></i> Next</a><div class="clearfix"></div>
 				
 				</div>';
 			
 			}
 			
-			$return .= '<div id="checkout_payment" class="collapses">';
+			$return .= '<div id="checkout_payment" class="collapses page-header">
 			
-				$return .= apply_filters('wordmerce_payment_form', '1');
+				<div class="page-header">';
 			
-			$return .= '</div>
+					$return .= apply_filters('wordmerce_payment_form', '1');
+				
+				$return .= '</div>';
+			
+				$return .= '<a href="#" data-menu-target="#'.(SHIPPING ? 'checkout_shipping' : 'checkout_login').'" class="clearfix pull-left btn btn-small checkout_move">Prev <i class="icon icon-chevron-left"></i></a><a href="javascript:;" id="checkout_now_button" class="disabled pull-right btn btn-success btn-large"><i class="icon-white icon-ok"></i> Checkout Now</a><div class="clearfix"></div>
+				
+			</div>
 			
 			<div class="page-header" id="">
 					
@@ -629,9 +651,7 @@ echo $current_stock.' - '.$quantity;
 			
 			</div>
 			
-			<a href="javascript:;" class="pull-left simpleCart_empty btn btn-warning btn-small"><i class="icon-white icon-remove"></i> Empty Basket</a>
-	
-			<a href="javascript:;" id="checkout_now_button" class="disabled pull-right btn btn-success btn-large"><i class="icon-white icon-ok"></i> Checkout Now</a>';
+			<a href="javascript:;" class="pull-left simpleCart_empty btn btn-warning btn-small"><i class="icon-white icon-remove"></i> Empty Basket</a>';
 			
 			//$return .= '<a href="#" class="btn btn-success btn-large">Delivery Details <i class="icon-white icon-chevron-down"></i></a>';
 
