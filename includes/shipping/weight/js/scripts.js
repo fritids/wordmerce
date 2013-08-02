@@ -102,12 +102,12 @@ function calculate_shipping(){
 			  });
 	        
 			  //simpleCart.update();
-			  
+
 			  jQuery('.simpleCart_shipping').html(simpleCart.toCurrency(value));
 			  
 			  jQuery('.simpleCart_grandTotal').html(simpleCart.toCurrency(simpleCart.grandTotal()));
 	
-			  }else{
+			}else{
 				  
 				  //show_error('<p>There was a problem calculating your shipping.</p><p>Please ensure you have either logged in or have a country selected in the checkout.</p>');
 				  				  

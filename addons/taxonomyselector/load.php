@@ -62,7 +62,7 @@ class taxonomyselector{
 				
 					$taxonomy = get_taxonomy($tax);
 							
-					$return .= ' <li style="width:'.$width.'%;"><a alt="'.$tax.'" href="#" class="drop">'.$taxonomy->labels->name.'</a>
+					$return .= ' <li style="width:'.$width.'%;"><a alt="'.$tax.'" href="#" class="drop"><span class="number_selected"></span>'.$taxonomy->labels->name.'</a>
 					
 						<div class="dropdown_5columns">';
 						
@@ -80,7 +80,7 @@ class taxonomyselector{
 									
 											$src = wp_get_attachment_image_src( $img_id );
 									
-											$return .= '<a href="'.get_bloginfo('url').'/'.$base_product->slug.'/'.$base_product->cats.'/'.$term->taxonomy.'/'.$term->slug.'"><img src="'.$src[0].'" /></a>';
+											$return .= '<a rel="'.$tax.'" alt="'.$term->slug.'" href="'.get_bloginfo('url').'/'.$base_product->slug.'/'.$base_product->cats.'/'.$term->taxonomy.'/'.$term->slug.'"><img src="'.$src[0].'" /></a>';
 									
 										}
 										
@@ -114,115 +114,123 @@ class taxonomyselector{
 
 		if ( ! wp_verify_nonce( $nonce, 'nonce' ) )
         	die ( 'Busted!');
-                
-        $args = array(
-			'order'    => 'ASC'
-		);
-        
-        foreach($_POST['taxonomies'] as $key => $value){
-        
-        	$taxonomy = get_taxonomy($key);
-
-        	$post_type = $wp_taxonomies[$key]->object_type[0];
-
-        	$args['post_type'][] = $post_type;
-        
-        	$terms = array();
-        
-        	foreach($value as $term){
-	        	
-	        	$terms[] = $term;
-	        	
-        	};
         	
-        	$terms = implode(',', $terms);
+        if(isset($_POST['taxonomies'])){
+                
+	        $args = array(
+				'order'    => 'ASC'
+			);
 	        
-	        $args[$key] = $terms;
+	        foreach($_POST['taxonomies'] as $key => $value){
 	        
-        };
-        		
-		$query = new WP_Query( $args );
-
-		// The Loop
-		if ( $query->have_posts() ) {
-
-			while ( $query->have_posts() ) {
-
-				$query->the_post();
-				
-				print_r($post);
-
-				$term_list = wp_get_object_terms(get_the_ID(), $wordmerce->taxonomies, array("fields" => "all"));
+	        	$taxonomy = get_taxonomy($key);
 	
-				$price = apply_filters('wm_archive_price', get_field('price', $post->ID), $post->ID);
-				
-				$class = "";
-				
-				if(!is_wp_error($term_list)){
-				
-					foreach($term_list as $term){
-						
-						$class .= $term->slug." ";
-						
-					}
-				
-				}
-				
-				$images = apply_filters('wm_images', get_field('images', $post->ID) , $post->ID); 
-				
-				$image_attributes = apply_filters('wm_image_src', wp_get_attachment_image_src( $images[0], 'product_thumb' ), $post->ID); 
-				
-				$return .= '<div class="item_container">';
-				
-				$return .= apply_filters('wm_inside_item_container', '');
-	 
-					$return .= '<a href="'.get_bloginfo('url').'/'.$base_product->slug.'/'.$base_product->item.'/'.$post->post_name.'" id="'.$post->post_name.'">
-						<img src="'.$image_attributes[0].'" width="'.$image_attributes[1].'" height="'.$image_attributes[2].'" class="'.$class .' design" alt="'.$post->post_title.'">';
-					
-						$return .= '<h4 class="item_title">'.get_the_title().'</h4>';
-					
-						$return .= ($price ? '<p class="item_price">&pound;'.$price.'</p>' : '');
-						
-					$return .= '</a>';
-						
-					if(count($term_list) > 0 && !is_wp_error($term_list)){
-					
-						$return .= '<p class="terms">In: ';
-						
-						$ti = 0;
-													
-						foreach ($term_list as $term){
-					
-							if($ti == 0){
-								$start = '';
-							}else{
-								$start = ', ';
-							}
+	        	$post_type = $wp_taxonomies[$key]->object_type[0];
 	
-							$return .= $start . '<a href="'.get_bloginfo('url').'/'.$base_product->slug.'/'.$base_product->cats.'/'.$term->taxonomy.'/'.$term->slug.'">'.$term->name.'</a>';
+	        	$args['post_type'][] = $post_type;
+	        
+	        	$terms = array();
+	        
+	        	foreach($value as $term){
+		        	
+		        	$terms[] = $term;
+		        	
+	        	};
+	        	
+	        	$terms = implode(',', $terms);
+		        
+		        $args[$key] = $terms;
+		        
+	        };
+	        		
+			$query = new WP_Query( $args );
+	
+			// The Loop
+			if ( $query->have_posts() ) {
+	
+				while ( $query->have_posts() ) {
+	
+					$query->the_post();
+					
+					global $post;
+						
+					$term_list = wp_get_object_terms(get_the_ID(), $wordmerce->taxonomies, array("fields" => "all"));
+		
+					$price = apply_filters('wm_archive_price', get_field('price', $post->ID), $post->ID);
+					
+					$class = "";
+					
+					if(!is_wp_error($term_list)){
+					
+						foreach($term_list as $term){
 							
-							$ti++;
-					
+							$class .= $term->slug." ";
+							
 						}
-						
-						$return .= '</p>';
 					
 					}
-				
-				$return .= '</div>';
-
+					
+					$images = apply_filters('wm_images', get_field('images', $post->ID) , $post->ID); 
+					
+					$image_attributes = apply_filters('wm_image_src', wp_get_attachment_image_src( $images[0], 'product_thumb' ), $post->ID); 
+					
+					$return .= '<div class="item_container">';
+					
+					$return .= apply_filters('wm_inside_item_container', ''); 
+		 
+						$return .= '<a href="'.get_bloginfo('url').'/'.$base_product->slug.'/'.$base_product->item.'/'.$post->post_name.'" id="'.$post->post_name.'">
+							<img src="'.$image_attributes[0].'" width="'.$image_attributes[1].'" height="'.$image_attributes[2].'" class="'.$class .' design" alt="'.$post->post_title.'">';
+						
+							$return .= '<h4 class="item_title">'.get_the_title().'</h4>';
+						
+							$return .= ($price ? '<p class="item_price">&pound;'.$price.'</p>' : '');
+							
+						$return .= '</a>';
+							
+						if(count($term_list) > 0 && !is_wp_error($term_list)){
+						
+							$return .= '<p class="terms">In: ';
+							
+							$ti = 0;
+														
+							foreach ($term_list as $term){
+						
+								if($ti == 0){
+									$start = '';
+								}else{
+									$start = ', ';
+								}
+		
+								$return .= $start . '<a href="'.get_bloginfo('url').'/'.$base_product->slug.'/'.$base_product->cats.'/'.$term->taxonomy.'/'.$term->slug.'">'.$term->name.'</a>';
+								
+								$ti++;
+						
+							}
+							
+							$return .= '</p>';
+						
+						}
+					
+					$return .= '</div>';
+	
+				}
+	
+			} else {
+				$return = '<h2>Nothing found...</h2><p>Please narrow your search criteria...</p>';
 			}
+			/* Restore original Post Data */
+			wp_reset_postdata();
+			
+			echo $return;
+			
+			// Reset Query
+			wp_reset_query();
 
-		} else {
-			// no posts found
+		}else{
+			
+			$return = '';
+			
 		}
-		/* Restore original Post Data */
-		wp_reset_postdata();
-		
-		echo $return;
-		
-		// Reset Query
-		wp_reset_query();
 		
 		die();
 		

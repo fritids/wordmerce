@@ -28,7 +28,13 @@ class physical extends base_product{
 		
 		add_action('wordmerce/confirm/unverified', array(&$this, 'unconfirmed_order' ), 10, 1);
 		
-		add_action('wordmerce/basket/update', array(&$this, 'update_stock' ), 10, 1);
+		$use_stock = get_field('stock_control', 'options');
+		
+		if($use_stock){
+		
+			add_action('wordmerce/basket/update', array(&$this, 'update_stock' ), 10, 1);
+		
+		}
 		
 	}
 	
@@ -156,7 +162,7 @@ class physical extends base_product{
 			
 		$args = array( 'numberposts' => -1, 'post_type' => $type, $tax => $cat);
 		
-		$return = '<div id="wm_products_container">';
+		$return = '<div id="wm_products_container" class="allow_ajax_selection">';
 		
 			$cards = get_posts( $args );
 			
@@ -243,9 +249,15 @@ class physical extends base_product{
 
 		$images = apply_filters('wm_images', get_field('images', $product->ID), $product->ID); 
 		
-		$stock = get_post_meta($product->ID, 'stock', true);
+		$use_stock = get_field('stock_control', 'options');
 		
-		$reserved_stock = get_post_meta($product->ID, 'reserved_stock', true);
+		if($use_stock){
+		
+			$stock = get_post_meta($product->ID, 'stock', true);
+			
+			$reserved_stock = get_post_meta($product->ID, 'reserved_stock', true);
+		
+		}
 		
 		$return = '<div id="product_container">';
 		
@@ -336,7 +348,7 @@ class physical extends base_product{
 								
 					<p>';
 
-						if( $stock > 0){
+						if( $stock > 0 && $use_stock){
 				
 							$return .= '<h2 class=""><span class="item_price">'. apply_filters('wm_product_price', '&pound;'.get_field('price', $product->ID), $product->ID) .'</span></h2><br>';
 							
@@ -354,7 +366,7 @@ class physical extends base_product{
 							
 							$return .= '<br>' . $stock . ' currently available.<br>';
 						
-						}else{
+						}elseif($use_stock){
 							
 							$return .= 'OUT OF STOCK';
 							
@@ -363,6 +375,22 @@ class physical extends base_product{
 								$return .= '<br><small>There are currently '.$reserved_stock.' items being held in baskets across the site which may become avaialble soon. Please check back later.</small>';
 								
 							}
+							
+						}else{
+							
+							$return .= '<h2 class=""><span class="item_price">'. apply_filters('wm_product_price', '&pound;'.get_field('price', $product->ID), $product->ID) .'</span></h2><br>';
+							
+							$return .= apply_filters('wm_after_buy', '', $product->ID);
+							
+							$return .= '<br><br><div class="input-prepend input-append">
+							
+								<span class="add-on">Quantity</span>
+								
+								<input class="item_Quantity input-mini" id="appendedPrependedInput" type="text" value="1"">
+								
+								<button class="btn item_add" href="javascript:;" type="button">Add to Order</button>
+							
+							</div>';
 							
 						}
 										

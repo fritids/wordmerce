@@ -398,6 +398,15 @@ class wordmerce{
 					'message' => 'Yes'
 				),
 				array (
+					'key' => 'stock_control',
+					'label' => 'Stock Control',
+					'name' => 'stock_control',
+					'type' => 'true_false',
+					'instructions' => 'Use stock control?',
+					'default_value' => '',
+					'message' => 'Yes'
+				),
+				array (
 					'key' => 'main_image_width',
 					'label' => 'Product main image width',
 					'name' => 'main_image_width',
@@ -453,7 +462,7 @@ class wordmerce{
 				),
 				array (
 					'key' => 'basket_placement',
-					'label' => 'Type of product',
+					'label' => 'Basket Placement',
 					'name' => 'basket_placement',
 					'type' => 'radio',
 					'instructions' => 'Choose how to display the basket',
@@ -814,6 +823,66 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 				'id' => 'shipping',
 				'class' => 'shipping',
 				'choices' => $this->shipping
+			),
+			array (
+				'key' => 'store_pickup',
+				'label' => 'Pickup in store?',
+				'name' => 'store_pickup',
+				'type' => 'true_false',
+				'instructions' => 'Give users the option to pick up in store?',
+				'default_value' => '',
+				'message' => 'Yes'
+			),
+			array (
+				'key' => 'store_locations',
+				'label' => 'Store Locations',
+				'name' => 'store_locations',
+				'type' => 'repeater',
+				'instructions' => 'Enter the name and location of your stores',
+				'required' => '0',
+				'id' => 'store_locations',
+				'class' => 'store_locations',
+				'conditional_logic' => 
+				array (
+					'status' => '0',
+					'rules' => 
+					array (
+						0 => 
+						array (
+							'field' => 'store_pickup',
+							'operator' => '==',
+							'value' => '1',
+						),
+					),
+					'allorany' => 'all',
+				),
+				'sub_fields' => array (
+					array(
+						'key' => 'store_name',
+						'label' => 'Store Name',
+						'name' => 'store_name',
+						'type' => 'text',
+						'order_no' => 0,
+						'id' => 'store_name',
+						'class' => 'store_name',
+						'conditional_logic' => array (
+							'status' => '0'
+						),
+					),
+					array(
+						'key' => 'store_location',
+						'label' => 'Store Location',
+						'name' => 'store_location',
+						'type' => 'text',
+						'order_no' => 0,
+						'instructions' => 'Enter a brief description of the location of the store.',
+						'id' => 'store_location',
+						'class' => 'store_location',
+						'conditional_logic' => array (
+							'status' => '0'
+						),
+					)
+				)
 			)
 		);
 		
@@ -2021,10 +2090,18 @@ You purchased %%ITEM_NAME%% on %%PURCHASE_DATE%% and your order number is %%ORDE
 			
 		$shipping = maybe_unserialize(get_option('options_shipping'));
 		
+		$store_pickup = maybe_unserialize(get_option('options_store_pickup'));
+		
 		if($shipping != ''){
 		
 			include_once(dirname( __FILE__ ) . '/includes/shipping/'.$shipping.'/'.$shipping.'.php');
 		
+		}
+		
+		if($store_pickup){
+			
+			include_once(dirname( __FILE__ ) . '/includes/shipping/store_pickup/store_pickup.php');
+			
 		}
 		
 	}

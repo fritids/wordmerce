@@ -20,6 +20,12 @@ class twodpricing{
 			
 		global $wpdb, $post_type;
 		
+		$this->add_custom_post_type();
+		
+		add_action('admin_head', array($this, 'admin_css') );
+		
+		//add_action('init', array($this, 'add_custom_post_type'));
+		
 		$this->table_name = $wpdb->prefix . "wm_twod";
 			
 		$this->create_table();
@@ -45,6 +51,59 @@ class twodpricing{
 		add_action('wp_ajax_wm_twod_price', array(&$this, 'wm_twod_price' ), 10, 1);
 
 		add_action('wp_ajax_nopriv_wm_twod_price', array(&$this, 'wm_twod_price' ), 10, 1);
+		
+	}
+	
+	function add_custom_post_type(){
+		
+		$labels = array(
+			'name' => '2D Pricing',
+			'singular_name' => 'twodpricing',
+			'add_new' => 'Add new pricing matrix',
+			'add_new_item' => 'Add new pricing matrix',
+			'edit_item' => 'Edit',
+			'new_item' => 'New pricing matrix',
+			'all_items' => 'All pricing matrix\'s',
+			'view_item' => 'View',
+			'search_items' => 'Search',
+			'not_found' => 'Not found',
+			'not_found_in_trash' => 'Not found in trash',
+			'parent_item_colon' => ':',
+			'menu_name' => 'Pricing Matrix\'s'
+		);
+		
+		$args = array(
+			'labels' => $labels,
+			'public' => false,
+			'publicly_queryable' => false,
+			'show_ui' => true, 
+			'show_in_menu' => true, 
+			'query_var' => true,
+			'slug' => 'twodpricing',
+			'capability_type' => 'post',
+			'has_archive' => true, 
+			'hierarchical' => false,
+			'menu_position' => 518,
+			'menu_icon' => plugins_url( 'img/icon_16_16.png', __FILE__ ),
+			'supports' => array( 'title' )
+
+		); 
+		
+		register_post_type( 'twodpricingtype', $args );
+		
+	}
+	
+	function admin_css(){ ?>
+		
+		<style type="text/css" media="screen">
+    
+			#icon-edit.icon32-posts-twodpricingtype{
+				background: url(<?php echo plugins_url( 'img/icon_32_32.png', __FILE__ ); ?>) no-repeat!important;
+			}
+			
+		</style>
+				
+		<?php
 		
 	}
 	
@@ -105,9 +164,11 @@ class twodpricing{
 	function wm_base_fields($meta_boxes, $post_type){
 
 		if(in_array($post_type, get_option('options_twod_post_types'))){
-	
-			$meta_boxes['upload_csv'] = array (
-				'id' => 'upload_csv',
+				
+			unset($meta_boxes['product_money']);
+			
+			$meta_boxes['select_matrix'] = array (
+				'id' => 'select_matrix',
 				'title' => '2 Dimensional Pricing Matrix',
 				'options' => array (
 					'position' => 'normal',
@@ -143,42 +204,98 @@ class twodpricing{
 				),
 				'fields' => array(
 					array (
-						'key' => 'csv',
-						'label' => 'Upload CSV',
-						'name' => 'csv',
-						'type' => 'file',
-						'instructions' => 'Upload your csv file here.<br>The CSV must conform to a specific format. For an example of the format please <a href="'.plugins_url('/example_csv.csv',  __FILE__ ).'">download an example csv file by clicking here</a>. The first row contains the values for width and the first column contains the values for height.',
-						'required' => '1',
-						'id' => 'map_fields',
-						'class' => 'map_fields',
+						'post_type' => array (
+							0 => 'twodpricingtype',
+						),
+						'max' => '',
+						'taxonomy' => array (
+							0 => 'all',
+						),
+						'filters' => array (
+							0 => 'search',
+						),
+						'result_elements' => array (
+							'post_title',
+						),
+						'key' => 'twodmatrix',
+						'label' => 'Select the matrix to use',
+						'name' => 'twodmatrix',
+						'type' => 'relationship',
 					),
-					array (
-						'key' => 'function',
-						'label' => '',
-						'name' => 'function',
-						'type' => 'function',
-						'instructions' => '',
-						'required' => '0',
-						'id' => 'function',
-						'class' => 'function',
-						'value' => array($this, 'upload_csv_field')
-					),
-					array (
-						'key' => 'wm_twod_update_id',
-						'label' => '',
-						'name' => 'wm_twod_update_id',
-						'type' => 'hidden',
-						'instructions' => '',
-						'required' => '0',
-						'id' => 'wm_twod_update_id',
-						'class' => 'wm_twod_update_id'
-					)
 				)
 			);
-			
-			unset($meta_boxes['product_money']);
 		
 		};
+		
+		$meta_boxes['upload_csv'] = array (
+			'id' => 'upload_csv',
+			'title' => '2 Dimensional Pricing Matrix',
+			'options' => array (
+				'position' => 'normal',
+				'layout' => 'default',
+				'hide_on_screen' => 
+				array (
+					'the_content',
+					'excerpt',
+					'custom_fields',
+					'discussion',
+					'comments',
+					'revisions',
+					'slug',
+					'author',
+					'format',
+					'featured_image',
+					'categories',
+					'tags',
+					'send-trackbacks'
+				)
+			),
+			'location' => array (
+				'rules' => 
+				array (
+					array (
+						'param' => 'post_type',
+						'operator' => '==',
+						'value' => 'twodpricingtype',
+						'order_no' => 1,
+					),
+				),
+				'allorany' => 'any',
+			),
+			'fields' => array(
+				array (
+					'key' => 'csv',
+					'label' => 'Upload CSV',
+					'name' => 'csv',
+					'type' => 'file',
+					'instructions' => 'Upload your csv file here.<br>The CSV must conform to a specific format. For an example of the format please <a href="'.plugins_url('/example_csv.csv',  __FILE__ ).'">download an example csv file by clicking here</a>. The first row contains the values for width and the first column contains the values for height.',
+					'required' => '1',
+					'id' => 'map_fields',
+					'class' => 'map_fields',
+				),
+				array (
+					'key' => 'function',
+					'label' => '',
+					'name' => 'function',
+					'type' => 'function',
+					'instructions' => '',
+					'required' => '0',
+					'id' => 'function',
+					'class' => 'function',
+					'value' => array($this, 'upload_csv_field')
+				),
+				array (
+					'key' => 'wm_twod_update_id',
+					'label' => '',
+					'name' => 'wm_twod_update_id',
+					'type' => 'hidden',
+					'instructions' => '',
+					'required' => '0',
+					'id' => 'wm_twod_update_id',
+					'class' => 'wm_twod_update_id'
+				)
+			)
+		);
 
 		//print_r($meta_boxes);
 		
@@ -465,6 +582,10 @@ class twodpricing{
 	}
 	
 	function wm_product_price($n, $id){
+		
+		$id = get_post_meta($id, 'twodmatrix', true);
+		
+		$id = $id[0];
 	
 		$min_max_width_height = $this->get_min_max_width_height($id);
 	

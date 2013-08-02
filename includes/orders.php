@@ -640,8 +640,9 @@ echo $current_stock.' - '.$quantity;
 					<h2>
 						Shipping: 
 						<span class="simpleCart_shipping"></span>
-					</h2>
-				</div>';
+					</h2>';
+					$return .= apply_filters('wordmerce_shipping_total', '');
+				$return .= '</div>';
 				
 			}
 					

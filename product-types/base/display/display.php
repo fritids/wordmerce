@@ -125,48 +125,52 @@ class base_product{
 	
 	function show_content($content){
 	
-		$return = do_action('wordmerce/before_content');
-		
-		global $wpdb, $post, $type, $wp_query; 
-		
-		//echo '<pre>'; print_r($wp_query);
-		
-		if(isset($wp_query->query_vars['type']) && isset($wp_query->query_vars['shop_page']) && isset($wp_query->query_vars['item'])) {
-		
-			$return = $this->go_to($wp_query->query_vars['shop_page'], $wp_query->query_vars['type'], $wp_query->query_vars['item']);
-		
-		}elseif(isset($wp_query->query_vars['type']) && isset($wp_query->query_vars['shop_page'])){
-
-			$return = $this->go_to('', $wp_query->query_vars['type'], $wp_query->query_vars['shop_page']);
+		if(is_page($this->home_page)){
+	
+			$return = do_action('wordmerce/before_content');
 			
-		}elseif(isset($wp_query->query_vars['type'])){
-		
-			$return = $this->go_to('', $wp_query->query_vars['type'], '');
+			global $wpdb, $post, $type, $wp_query; 
 			
-		}elseif($post->ID == $this->home_page){
+			//echo '<pre>'; print_r($wp_query);
 			
-			$return = 'nope';
+			if(isset($wp_query->query_vars['type']) && isset($wp_query->query_vars['shop_page']) && isset($wp_query->query_vars['item'])) {
 			
-		}
-		
-		if($return == 'nope'){
+				$return = $this->go_to($wp_query->query_vars['shop_page'], $wp_query->query_vars['type'], $wp_query->query_vars['item']);
 			
-			$return = $this->go_home((isset($wp_query->query_vars['type']) ? $wp_query->query_vars['type'] : ''));
-			
-		}
-		
-		$return .= do_action('wordmerce/after_content');
-		
-		$return .= '<div class="clearfix"></div>';
+			}elseif(isset($wp_query->query_vars['type']) && isset($wp_query->query_vars['shop_page'])){
+	
+				$return = $this->go_to('', $wp_query->query_vars['type'], $wp_query->query_vars['shop_page']);
 				
-		if($return != ''){
+			}elseif(isset($wp_query->query_vars['type'])){
 			
-			echo $return;
+				$return = $this->go_to('', $wp_query->query_vars['type'], '');
+				
+			}elseif($post->ID == $this->home_page){
+				
+				$return = 'nope';
+				
+			}
+			
+			if($return == 'nope'){
+				
+				$return = $this->go_home((isset($wp_query->query_vars['type']) ? $wp_query->query_vars['type'] : ''));
+				
+			}
+			
+			$return .= do_action('wordmerce/after_content');
+			
+			$return .= '<div class="clearfix"></div>';
+					
+			if($return != ''){
+				
+				echo $return;
+			
+			}else{
+				
+				return $content;
+				
+			}
 		
-		}else{
-			
-			return $content;
-			
 		}
 		
 	}
